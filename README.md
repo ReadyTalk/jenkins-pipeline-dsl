@@ -33,20 +33,20 @@ jenkins {
   user = 'jenkins'
   password = System.env.APIKEY
 
-  dsl file('jobs.yml')
-}
-```
+  dsl file('jobs.yml') } ```
 
 For now, the gradle plugin is the only interface, but a proper CLI-based
 interface is planned for those not using gradle.
 
 ##Plugin
 
-Integrates the component dsl into Gradle and provides a smart interface to Jenkins
+Integrates the component dsl into Gradle and provides a smart interface to
+Jenkins
 
 Features:
   * Doesn't change whether a job is disabled when modifying configs in Jenkins
-  * Can dump generated xml to locally as well as push to a running Jenkins instance
+  * Can dump generated xml to locally as well as push to a running Jenkins
+    instance
   * Native support for component dsl model blocks
   * Supports YAML-based syntax in addition to groovy dsl
 
@@ -56,7 +56,9 @@ Requirements:
 Limitations:
   * Supports views in theory, but untested and unsupported by the component dsl
   * No folder support yet
-  * Can't replace jobs of different jenkins archetypes (e.g. maven job with freestyle)
+  * Can't replace jobs of different jenkins archetypes (e.g. replace maven job
+    type with a regular job)
+  * Currently only supports regular "freestyle" jobs
 
 ```yaml
 - basicJob:
@@ -91,9 +93,10 @@ model {
 
 Open Source Progress:
 ---------------------
-  * No Jenkins plugin validation - if the DSL references plugins you don't have installed on Jenkins, it won't work
+  * No Jenkins plugin validation - if the DSL references plugins you don't have
+    installed on Jenkins, it won't work
   * git and pullRequest plugins are specific to Atlassian Stash
   * fitnesse component and jobs are specific to ReadyTalk
 
-Other notes:
-Plugin validation exists in the upstream DSL when running through Jenkins directly - we might be able to pull that in
+Other notes: Plugin validation exists in the upstream DSL when running through
+Jenkins directly - we might be able to pull that in
