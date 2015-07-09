@@ -1,0 +1,32 @@
+dependencies {
+  compile (
+    'org.fusesource.jansi:jansi:1.11',
+    'org.codehaus.groovy.modules.http-builder:http-builder:0.7.2',
+    'org.slf4j:slf4j-api:1.7.12',
+    'org.yaml:snakeyaml:1.15',
+    'org.reflections:reflections:0.9.10',
+  )
+}
+
+//ModelSpecification is very useful for downstream projects that might define additional components
+task testJar(type: Jar) {
+  classifier = 'tests'
+  from sourceSets.test.output
+}
+
+artifacts {
+  testCompile testJar
+}
+
+publishing {
+  publications {
+    dsl(MavenPublication) {
+      from components.java
+      artifact source: testJar
+    }
+  }
+}
+
+//TODO: This is required since Gradle 2.4, but it should have been automatic
+artifactoryPublish.dependsOn testJar
+

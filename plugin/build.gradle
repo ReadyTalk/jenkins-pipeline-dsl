@@ -1,0 +1,17 @@
+dependencies {
+  compile (
+    gradleApi(),
+    project(':dsl'),
+    'org.fusesource.jansi:jansi:1.11',
+  )
+
+  testCompile('com.netflix.nebula:nebula-test:2.2.1')
+}
+
+publishing {
+  publications {
+    plugin(MavenPublication) {
+      from components.java
+    }
+  }
+}
