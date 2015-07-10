@@ -25,7 +25,7 @@ class TriggerDownstreamComponent extends AbstractComponentType implements Aggreg
           sameParameters: true,
           sameCommit: false,
           parameters: [:],
-          parameterFile: 'jenkins.properties',
+          parameterFile: '',      //Can't default to jenkins.properties, as missing file will remove parameters
           scriptedParameters: '',
           sameNode: false,
           manual: false,

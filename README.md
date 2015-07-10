@@ -33,7 +33,9 @@ jenkins {
   user = 'jenkins'
   password = System.env.APIKEY
 
-  dsl file('jobs.yml') } ```
+  dsl file('jobs.yml')
+}
+```
 
 For now, the gradle plugin is the only interface, but a proper CLI-based
 interface is planned for those not using gradle.
