@@ -3,6 +3,7 @@ package com.readytalk.jenkins.model.types
 import com.readytalk.jenkins.model.AbstractComponentType
 import com.readytalk.jenkins.model.Fixed
 import com.readytalk.jenkins.model.ItemSource
+import com.readytalk.jenkins.model.TemplateStr
 import com.readytalk.util.StringUtils
 
 @Fixed
@@ -25,7 +26,7 @@ class TriggerDownstreamComponent extends AbstractComponentType implements Aggreg
           sameParameters: true,
           sameCommit: false,
           parameters: [:],
-          parameterFile: '',      //Can't default to jenkins.properties, as missing file will remove parameters
+          parameterFile: new TemplateStr('${scriptedParameters != "" ? "jenkins.properties" : ""}'),
           scriptedParameters: '',
           sameNode: false,
           manual: false,
