@@ -1,5 +1,5 @@
 ##Jenkins Component DSL
-A set of abstractions around the jenkins-job-dsl project (from netflix) to
+A set of abstractions around the jenkins-job-dsl project (from Netflix) to
 provide modularity and conventions
 
 Instead of providing syntactic sugar over the jenkins job XML, the component DSL
