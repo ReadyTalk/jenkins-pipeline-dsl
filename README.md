@@ -1,6 +1,6 @@
 #ReadyTalk Jenkins DSL
 
-Built on top of the upstream netflix DSL, but otherwise represents a separate
+Built on top of the upstream Netflix DSL, but otherwise represents a separate
 layer This ensures that we can swap out the underlying system somewhat, such as
 making use of the workflow plugin once it matures more.
 
