@@ -1,4 +1,4 @@
-#Readytalk Jenkins DSL
+#ReadyTalk Jenkins DSL
 
 Built on top of the upstream netflix DSL, but otherwise represents a separate
 layer This ensures that we can swap out the underlying system somewhat, such as
