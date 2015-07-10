@@ -45,9 +45,9 @@ class ModelDsl implements ModelDslMethods {
   }
 
   void generate(GroupModelElement tree) {
-//    if(System.getProperty('ModelDSLPrettyPrint')) {
+   if(System.getProperty('ModelDSLPrettyPrint')) {
       new ModelPrettyPrinter().visit(tree)
-//    }
+   }
 
     ModelValidator.evaluate(registry, tree)
 
