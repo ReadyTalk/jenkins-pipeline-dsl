@@ -1,0 +1,10 @@
+language: groovy
+jdk: oraclejdk7
+
+script: ./gradlew ci
+
+#Gradle doesn't need a separate install step, just build it!
+install: /bin/true
+
+#Use docker containers for build
+sudo: false
