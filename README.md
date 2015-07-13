@@ -22,11 +22,19 @@ jobs.yml:
 ```
 
 Then in your build.gradle (assuming a seed job that sets the APIKEY token):
+(no release version published yet)
 
 ```groovy
-plugins {
-  id 'com.readytalk.jenkins' version 0.7.1
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath "com.readytalk.jenkins:plugin:0.7.1-SNAPSHOT"
+  }
 }
+
+plugins.apply 'com.readytalk.jenkins'
 
 jenkins {
   url = 'https://jenkins.example.com'
