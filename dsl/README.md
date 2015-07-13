@@ -403,20 +403,20 @@ dsl are exposed as direct properties:
 Motivation:
 -----------
 
-The jenkins-job-dsl project provides a convenient way to build up jenkins
+The [jenkins-job-dsl][] project provides a convenient way to build up jenkins
 configuration without manually constructing raw xml, but it lacks convenient
 ways to construct modular templates, organizational defaults, or multi-job flows
 like pipelines.
 
-The buildflow plugin provides a way to orchestrate pipelines, but it's rather
-opaque and difficult to test locally, and still requires constructing the
-individual jobs anyways. The workflow plugin also allows better pipeline
+The [buildflow plugin][] provides a way to orchestrate pipelines, but it's
+rather opaque and difficult to test locally, and still requires constructing the
+individual jobs anyways. The [workflow plugin][] also allows better pipeline
 definitions, but it's very new and also doens't provide a nice way to setup
 modular templates.
 
-JJB (jenkins job builder) does provide a nice way to setup modular templates,
-but it's still hard to setup cross-cutting defaults and opinionated pipelines
-since the extension mechanism is locked to the XML-tree structure.
+[JJB (jenkins job builder)][] does provide a nice way to setup modular
+templates, but it's still hard to setup cross-cutting defaults and opinionated
+pipelines since the extension mechanism is locked to the XML-tree structure.
 
 This project instead follows the gradle idea of strong
 convention-over-configuration without having to sacrafice flexibility and
@@ -427,6 +427,11 @@ setup and interact.
 For example, Jenkins has multiple plugins for triggering downstream builds, and
 one of them sets it up as a manual trigger in a pipeline view. It's functionally
 identical to a regular trigger aside from being manual, but it's a completely
-different plugin with a different path in the xml and netflix dsl. Instead of
+different plugin with a different path in the xml and Netflix dsl. Instead of
 having to know about this quirk, we can just make a boolean parameter on the
 triggerDownstream component that swaps them out automatically.
+
+[jenkins-job-dsl]: https://github.com/jenkinsci/job-dsl-plugin/wiki
+[buildflow plugin]: https://github.com/jenkinsci/build-flow-plugin
+[workflow plugin]: https://github.com/jenkinsci/workflow-plugin
+[JJB (jenkins job builder)]: http://docs.openstack.org/infra/jenkins-job-builder/
