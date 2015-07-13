@@ -97,8 +97,8 @@ Open Source Progress:
 ---------------------
   * No Jenkins plugin validation - if the DSL references plugins you don't have
     installed on Jenkins, it won't work
-  * git and pullRequest plugins are specific to Atlassian Stash
-  * fitnesse component and jobs are specific to ReadyTalk
+  * fitnesse component and jobs are very niche to the point of probably being
+    ReadyTalk-specific
 
 Other notes: Plugin validation exists in the upstream DSL when running through
 Jenkins directly - we might be able to pull that in
