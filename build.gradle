@@ -47,6 +47,18 @@ subprojects {
       'cglib:cglib-nodep:2.2',
     )
   }
+
+  artifactory {
+    contextUrl = 'http://oss.jfrog.org/artifactory'
+    publish {
+      repository {
+        repoKey = 'oss-snapshot-local'
+        username = bintrayUser
+        password = bintrayKey
+        maven = true
+      }
+    }
+  }
 }
 
 wrapper {
