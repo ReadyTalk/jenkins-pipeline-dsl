@@ -16,10 +16,12 @@ interface ModelDslMethods {
 class ModelDsl implements ModelDslMethods {
   TypeRegistryMap registry
   JobParent jp
+  ContextLookup defaultLookup
 
   ModelDsl(JobParent jp, TypeRegistryMap registry = TypeRegistryMap.getDefaultTypes()) {
     this.jp = jp
     this.registry = registry
+    this.defaultLookup = new DefaultContext(registry)
   }
 
   protected static def itemCreator(JobParent jp, ItemSource source) {
@@ -31,27 +33,35 @@ class ModelDsl implements ModelDslMethods {
     registry.merge(TypeDsl.evaluate(registry, typesBlock))
   }
 
-  GroupModelElement eval(Closure modelBlock) {
+  void defaults(Closure defaultsBlock) {
+    def defaultsTree = parse(defaultsBlock)
+    def scoping = new ScopeConstructor(this.defaultLookup, new ContextMap())
+    ModelEvaluator.evaluateTree(registry, defaultsTree, scoping)
+    this.defaultLookup = ContextMap.mergeLookups(defaultsTree.user, this.defaultLookup)
+  }
+
+  GroupModelElement parse(Closure modelBlock) {
     return GroupParser.parse(registry, modelBlock)
   }
 
-  GroupModelElement eval(GroupModelElement parent, Closure modelBlock) {
+  GroupModelElement parse(GroupModelElement parent, Closure modelBlock) {
     parent.elements.add(GroupParser.parse(registry, modelBlock))
     return parent
   }
 
   void generate(Closure modelBlock) {
-    generate(eval(modelBlock))
+    generate(parse(modelBlock))
   }
 
   void generate(GroupModelElement tree) {
-   if(System.getProperty('ModelDSLPrettyPrint')) {
+    if(System.getProperty('ModelDSLPrettyPrint')) {
       new ModelPrettyPrinter().visit(tree)
-   }
+    }
 
     ModelValidator.evaluate(registry, tree)
 
-    def jobList = ModelEvaluator.evaluateTree(registry, tree)
+    def scoping = new ScopeConstructor(defaultLookup, new ContextMap())
+    def jobList = ModelEvaluator.evaluateTree(registry, tree, scoping)
 
     //TODO: Make this optional / flaggable
     ModelPrettyPrinter.printItemList(jobList)

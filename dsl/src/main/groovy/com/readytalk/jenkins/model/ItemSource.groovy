@@ -66,6 +66,6 @@ class ItemSource {
 }
 
 interface DslDelegate {
-  def create(JobSource)
+  def create(ItemSource)
 }
 

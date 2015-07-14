@@ -3,6 +3,7 @@ package com.readytalk.gradle
 import com.readytalk.jenkins.JenkinsActions
 import com.readytalk.jenkins.ItemType
 import com.readytalk.jenkins.ModelGenerator
+import com.readytalk.jenkins.model.ContextMap
 import com.readytalk.jenkins.model.GroupModelElement
 import com.readytalk.util.ClosureGlue
 
@@ -34,10 +35,12 @@ class ReadytalkJenkinsPlugin implements Plugin<Project> {
       items = [:]
 
       config.typeBlocks.each(modelGen.modelDsl.&types)
-      GroupModelElement rootTree = modelGen.evaluate(config.defaults)
 
-      //Attach all parsed trees as children of the parsed defaults tree
-      //E.g. they'll inherit from the defaults' scope
+      //Set defaults
+      modelGen.modelDsl.defaults(config.getDefaults())
+
+      //Collect all parsed trees under a single root for convenience
+      GroupModelElement rootTree = modelGen.evaluate{}
       Closure evaluator = modelGen.&evaluate.rcurry(rootTree)
       Closure fileEvaluator = evaluator << modelGen.&generateFromFile
 

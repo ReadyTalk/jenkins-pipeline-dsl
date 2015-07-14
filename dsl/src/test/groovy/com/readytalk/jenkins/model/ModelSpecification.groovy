@@ -3,6 +3,7 @@ package com.readytalk.jenkins.model
 import com.readytalk.jenkins.model.types.BaseComponent
 import com.readytalk.jenkins.model.types.CommonComponent
 import com.readytalk.jenkins.model.visitors.ModelEvaluator
+import com.readytalk.jenkins.model.visitors.ScopeConstructor
 import javaposse.jobdsl.dsl.JobManagement
 import javaposse.jobdsl.dsl.JobParent
 import spock.lang.Specification

@@ -8,12 +8,14 @@ import com.readytalk.jenkins.model.types.ComponentTrait
 //Stacks are mainly for clarity - every ContextMap instance has a reference to its parent already
 class ModelEvaluator extends SymmetricVisitor {
   final TypeRegistry registry
-  final Stack<ContextMap> contextStack = new Stack<ContextMap>()
-  final Stack<ContextMap> defaultStack = new Stack<ContextMap>()
   final List<ItemSource> itemSet = []
-  List<ItemSource> pipelineSet = null
 
-  static List<ItemSource> evaluateTree(TypeRegistry registry, GroupModelElement root) {
+  //MUTABLE
+  private final Stack<ModelContext> contextStack = new Stack<ModelContext>()
+  private List<ItemSource> pipelineSet = null
+
+  static List<ItemSource> evaluateTree(TypeRegistry registry, GroupModelElement root, ScopeConstructor scoping = null) {
+    (scoping ?: new ScopeConstructor(registry)).visit(root)
     def evaluator = new ModelEvaluator(registry)
     evaluator.visit(root)
     return processItems(evaluator.itemSet)
@@ -36,29 +38,25 @@ class ModelEvaluator extends SymmetricVisitor {
     }.flatten()
   }
 
+  //TODO: Use injection
   ModelEvaluator(TypeRegistry registry) {
     this.registry = registry
-    defaultStack.push(new ContextMap(new DefaultContext(registry), [:]))
-    contextStack.push(new ContextMap())
   }
 
   ContextMap getContext() {
-    return contextStack.peek()
+    return contextStack.peek().user
   }
 
   ContextMap getDefaultContext() {
-    return defaultStack.peek()
+    return contextStack.peek().defaults
   }
 
   def enter(ScopedModelElement element) {
-    contextStack.push(context.createChildContext())
-    defaultStack.push(defaultContext.createChildContext())
-    element.modelContext = new ModelContext(context, defaultContext)
+    contextStack.push(element.modelContext)
   }
 
   def exit(ScopedModelElement element) {
     contextStack.pop()
-    defaultStack.pop()
   }
 
   //Override standard control flow to ensure component model elements are evaluated first to build up context
@@ -86,7 +84,7 @@ class ModelEvaluator extends SymmetricVisitor {
     defaults.setDelegate(jobDefaultsProxy)
     defaults.resolveStrategy = Closure.DELEGATE_FIRST
     defaults.call(jobDefaultsProxy)
-    ItemSource source =  new ItemSource(registry, itemElement.getComponents(), itemElement.modelContext)
+    ItemSource source = new ItemSource(registry, itemElement.getComponents(), itemElement.modelContext)
     itemSet.add(source)
     if(pipelineSet != null) pipelineSet.add(source)
 

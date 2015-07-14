@@ -85,7 +85,7 @@ class ModelGenerator {
   }
 
   GroupModelElement evaluate(Closure parseable, GroupModelElement parent = null) {
-    GroupModelElement tree = modelDsl.eval(parseable)
+    GroupModelElement tree = modelDsl.parse(parseable)
     if(parent != null) {
       parent.elements.add(tree)
       return parent
