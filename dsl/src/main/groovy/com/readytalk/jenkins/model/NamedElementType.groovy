@@ -5,6 +5,12 @@ import com.readytalk.util.ClosureGlue
 import groovy.transform.AnnotationCollector
 import groovy.transform.Immutable
 
+import java.lang.annotation.ElementType
+import java.lang.annotation.Retention
+import java.lang.annotation.RetentionPolicy
+import java.lang.annotation.Target
+import java.lang.reflect.Field
+
 //For use on single-type classes implementing AbstractComponentType or AbstractJobType
 @Immutable
 @Singleton(strict=false)
@@ -118,4 +124,25 @@ class DefaultsComponentType extends AbstractComponentType {
     config.call(proxy)
     return [source]
   }
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+public @interface ComponentField {}
+
+//Allows declaring component parameters as class fields instead of a map literal
+//@SelfType(AbstractComponentType) //TODO: Requires Groovy 2.4.x+
+trait ImplicitFields {
+  Map<String,?> getFields() {
+    Map<String,?> map = this.getClass().getDeclaredFields().collectEntries { Field field ->
+      if(ComponentField in field.declaredAnnotations*.annotationType()) {
+        [(field.name): this.getProperty(field.name)]
+      } else {
+        []
+      }
+    }
+    return map
+  }
+
+  //TODO: validation method to check field types
 }

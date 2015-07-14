@@ -67,4 +67,20 @@ class ComponentTest extends ModelSpecification {
     job.scm.userRemoteConfigs.'hudson.plugins.git.UserRemoteConfig'.url[0].value() ==
             prJob.scm.userRemoteConfigs.'hudson.plugins.git.UserRemoteConfig'.url[0].value()
   }
+
+  @Fixed
+  static class ImplicitFieldComponent implements ImplicitFields {
+    @ComponentField String exampleField = 'hello'
+
+    @ComponentField String[] listExample = ['one', 'two', 'three']
+  }
+
+  def "can create components using ComponentField trait"() {
+    when:
+    def component = ImplicitFieldComponent.instance
+    def fieldMap = component.getFields()
+    then:
+    fieldMap.exampleField == 'hello'
+    fieldMap.listExample == ['one', 'two', 'three']
+  }
 }
