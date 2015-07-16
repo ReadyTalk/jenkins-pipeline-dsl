@@ -20,7 +20,8 @@ class PullRequestComponent extends AbstractComponentType {
   Map<String,?> fields = [
           enabled: true,
           prefix: '',
-          suffix: '-pr-builder'
+          suffix: '-pr-builder',
+          notifications: false,
   ]
 
   Closure dslConfig = { vars ->
@@ -42,6 +43,10 @@ class PullRequestComponent extends AbstractComponentType {
     //Overriding at 'user' scope because this job is "hidden" from the user DSL (added post-evaluation)
     prJob.proxyMaker(prJob.context, prJob.user).generate(name).with {
       prJob.itemName = "${prefix}${original.itemName}${suffix}"
+      if(!notifications) {
+        ownership.hipchatRooms = ''
+        ownership.email = ''
+      }
       //expand template
       git.repo = original.lookup('git','repo')
       if(prJob.components.contains(GitComponent.instance)) {
