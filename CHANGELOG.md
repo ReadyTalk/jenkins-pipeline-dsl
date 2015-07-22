@@ -1,6 +1,14 @@
 #Changelog
 ----------
 
+* 0.7.5
+    - Initial release version
+    - Various cleanup and bug fixes
+    - Pull requests now default to disabling active notifications
+        Still notifies github/stash, but not email/hipchat
+    - Plugin now allows setting global default values and templates
+        Useful for organization-wide defaults and settings
+
 * 0.6.0-SNAPSHOT
     - Experimental support for templated strings
         This allows for dynamic component defaults

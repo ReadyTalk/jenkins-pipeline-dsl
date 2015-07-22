@@ -32,7 +32,7 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath "com.readytalk.jenkins:plugin:0.7.1-SNAPSHOT"
+    classpath "com.readytalk.jenkins:plugin:0.7.5"
   }
 }
 
