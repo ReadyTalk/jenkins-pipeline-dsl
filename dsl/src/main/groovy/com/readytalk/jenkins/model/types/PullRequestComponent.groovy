@@ -36,11 +36,12 @@ class PullRequestComponent extends AbstractComponentType {
       return [original]
     }
 
-    //NOTE: Components generating multiple jobs like this MUST use the JobSource(JobSource,Boolean) constructor
+    //NOTE: Components generating multiple jobs like this MUST use the ItemSource(ItemSource,Boolean) constructor
     ItemSource prJob = new ItemSource(original)
     def ogProxy = original.proxyMaker(original.context).generate('git')
 
     //Overriding at 'user' scope because this job is "hidden" from the user DSL (added post-evaluation)
+    //i.e. users wouldn't be able to override things in this scope anyways
     prJob.proxyMaker(prJob.context, prJob.user).generate(name).with {
       prJob.itemName = "${prefix}${original.itemName}${suffix}"
       if(!notifications) {

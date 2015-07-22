@@ -23,12 +23,12 @@ class ModelSpecification extends Specification {
   Closure generate
   Closure itemDefaults
 
-
   def setup() {
     this.registry = ModelSpecification.getMockRegistry()
     this.registry.types.put('base', BaseComponent.instance)
     this.model = ModelSpecification.&mockParse.curry(registry)
     this.types = registry.&merge << TypeDsl.&evaluate.curry(registry)
+
     this.eval = ModelEvaluator.&evaluateTree.curry(registry) << model
     this.generate = { List<ItemSource> jobList ->
       JobManagement jm = Mock(JobManagement)

@@ -5,6 +5,7 @@ import com.readytalk.jenkins.model.types.OwnershipComponent
 import com.readytalk.jenkins.model.types.ParameterizedComponent
 import com.readytalk.jenkins.model.types.PullRequestComponent
 import com.readytalk.jenkins.model.types.TriggerDownstreamComponent
+import spock.lang.Ignore
 
 class ComponentTest extends ModelSpecification {
   def "Can define simple component using type dsl"() {
@@ -22,50 +23,6 @@ class ComponentTest extends ModelSpecification {
     then:
     registry.lookup('organization') instanceof ComponentType
     noExceptionThrown()
-  }
-
-  def "Ownership component sets email publishing"() {
-    when:
-    types {
-      add OwnershipComponent.instance
-    }
-    def job = generate {
-      fakeJob('aJob') {
-        ownership {
-          team 'fake'
-        }
-      }
-    }.find { it.name == 'aJob' }.getNode()
-
-    then:
-    job.publishers.'hudson.tasks.Mailer'.recipients[0].value() == 'rt.fake@readytalk.com'
-  }
-
-  def "Pull request component uses same repository"() {
-    when:
-    types {
-      add OwnershipComponent.instance
-      add GitComponent.instance
-      add PullRequestComponent.instance
-      add TriggerDownstreamComponent.instance
-      add ParameterizedComponent.instance
-    }
-    def jobs = generate(YamlParser.parse("""
-- fakeJob:
-    name: jerb
-    ownership:
-      team: fake
-    pullRequest:
-    parameterized:
-    git:
-"""))
-
-    def prJob = jobs.find { it.name == 'jerb-pr-builder' }.getNode()
-    def job = jobs.find { it.name == 'jerb' }.getNode()
-
-    then:
-    job.scm.userRemoteConfigs.'hudson.plugins.git.UserRemoteConfig'.url[0].value() ==
-            prJob.scm.userRemoteConfigs.'hudson.plugins.git.UserRemoteConfig'.url[0].value()
   }
 
   @Fixed

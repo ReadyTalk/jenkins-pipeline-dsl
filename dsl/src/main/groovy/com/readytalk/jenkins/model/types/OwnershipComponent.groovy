@@ -30,8 +30,8 @@ class OwnershipComponent extends AbstractComponentType {
           strategyName(vars.hipchatLevel)
         }
       }
-      if(vars.email != '' || vars.team != '') {
-        mailer(vars.email ?: "rt.${vars.team.toLowerCase()}@readytalk.com", true, true)
+      if(vars.email != '') {
+        mailer(vars.email, true, true)
       }
     }
   }
