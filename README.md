@@ -1,5 +1,7 @@
 #ReadyTalk Jenkins DSL
 
+[![Build Status](https://travis-ci.org/ReadyTalk/jenkins-pipeline-dsl.svg?branch=master)](https://travis-ci.org/ReadyTalk/jenkins-pipeline-dsl)
+
 Built on top of the upstream Netflix DSL, but otherwise represents a separate
 layer This ensures that we can swap out the underlying system somewhat, such as
 making use of the workflow plugin once it matures more.

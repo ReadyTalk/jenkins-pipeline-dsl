@@ -20,7 +20,7 @@ artifacts {
 
 publishing {
   publications {
-    dsl(MavenPublication) {
+    jar(MavenPublication) {
       from components.java
       artifact source: testJar
     }

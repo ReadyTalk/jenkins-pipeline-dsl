@@ -10,7 +10,7 @@ dependencies {
 
 publishing {
   publications {
-    plugin(MavenPublication) {
+    jar(MavenPublication) {
       from components.java
     }
   }

@@ -2,6 +2,7 @@ plugins {
   id 'com.jfrog.artifactory' version '3.1.1'
   id 'com.readytalk.ci' version '0.5.2'
   id 'nebula.info' version '2.2.2'
+  id 'com.jfrog.bintray' version '1.2'
   id 'idea'
 }
 
@@ -12,6 +13,7 @@ subprojects {
   apply plugin: 'com.readytalk.ci'
   apply plugin: 'com.readytalk.ci.version.snapshot'
   apply plugin: 'com.jfrog.artifactory'
+  apply plugin: 'com.jfrog.bintray'
 
   repositories {
     jcenter()
@@ -58,6 +60,31 @@ subprojects {
         maven = true
       }
     }
+  }
+
+  bintray {
+    user = bintrayUser
+    key = bintrayKey
+    pkg {
+      name = rootProject.name
+      userOrg = 'readytalk'
+      repo = 'plugins'
+      version.vcsTag = buildEnv.travisTag
+    }
+
+    //bintray plugin is imperative, and can't be lazily configured properly from publications
+    //As a result, the publication names must be manually and explicitly passed into its extension ahead of time
+    publications = ['jar']
+  }
+
+  artifactoryPublish.onlyIf { ! buildEnv.release }
+  bintrayUpload.onlyIf { buildEnv.release }
+}
+
+//Workaround for https://github.com/bintray/gradle-bintray-plugin/issues/74
+afterEvaluate {
+  task bintrayUpload(group: "publishing", overwrite: true) {
+    dependsOn subprojects.bintrayUpload
   }
 }
 
