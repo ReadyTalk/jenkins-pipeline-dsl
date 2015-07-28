@@ -1,6 +1,12 @@
 #Changelog
 ----------
 
+* 0.7.6
+    - Force workspace polling by default for git
+        Remote polling using ls-remote turns out to be very fragile, and newer
+        versions of the Jenkins git plugin can auto-provision workspaces for
+        polling
+
 * 0.7.5
     - Initial release version
     - Various cleanup and bug fixes
@@ -13,8 +19,8 @@
     - Experimental support for templated strings
         This allows for dynamic component defaults
     - Watches tags by default, git.watch field removed
-        Branches are what we actually care about building, and pull-request refspecs
-        can be handled by the pull-request component
+        Branches are what we actually care about building, and pull-request
+        refspecs can be handled by the pull-request component
     - Refactored git component to support github by default
     - git component now has a provider field that accepts either stash or github
     - Full reflection-based import

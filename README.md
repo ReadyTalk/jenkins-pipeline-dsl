@@ -24,7 +24,6 @@ jobs.yml:
 ```
 
 Then in your build.gradle (assuming a seed job that sets the APIKEY token):
-(no release version published yet)
 
 ```groovy
 buildscript {
@@ -32,7 +31,7 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath "com.readytalk.jenkins:plugin:0.7.5"
+    classpath "com.readytalk.jenkins:plugin:0.7.6"
   }
 }
 
