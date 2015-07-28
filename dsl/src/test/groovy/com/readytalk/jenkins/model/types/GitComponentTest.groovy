@@ -126,4 +126,15 @@ class GitComponentTest extends ModelSpecification {
     'stash'  | "https://${DOMAIN}/projects/group/repos/repo"   | "ssh://git@${DOMAIN}/"
     'github' | "https://github.com/group/repo/"                | "git@github.com:"
   }
+
+  def "forces more reliable workspace cloning by default"() {
+    when:
+    def jobs = generate {
+      basicJob('faux')
+    }
+    def job = jobs.find { it.name.equals('faux') }.getNode()
+
+    then:
+    job.scm.extensions.'hudson.plugins.git.extensions.impl.DisableRemotePoll'[0] != null
+  }
 }

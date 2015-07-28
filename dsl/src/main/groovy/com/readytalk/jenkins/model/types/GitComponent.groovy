@@ -35,6 +35,7 @@ class GitComponent extends AbstractComponentType implements ExternalizedFields {
           credentials:    '',
           server:         'github.com',
           provider:       new TemplateStr('${server == "github.com" ? "github" : ""}'),
+          workspacePoll:  true, //non-workspace polling is very fragile and error-prone
           dsl:            {},
   ]
 
@@ -126,6 +127,14 @@ class GitComponent extends AbstractComponentType implements ExternalizedFields {
       }
     }
 
+    //Setting remotePoll(false) using the upstream dsl (1.35) doesn't seem to map to this
+    if(vars.workspacePoll) {
+      configure { node ->
+        node / scm / extensions / 'hudson.plugins.git.extensions.impl.DisableRemotePoll'
+      }
+    }
+
+    //TODO: does this actually do anything?
     if(vars.credentials != '') {
       configure { node ->
         node / scm / userRemoteConfigs / 'hudson.plugins.git.UserRemoteConfig'
