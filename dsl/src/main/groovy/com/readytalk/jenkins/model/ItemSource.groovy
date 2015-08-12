@@ -1,6 +1,6 @@
 package com.readytalk.jenkins.model
 
-import com.readytalk.jenkins.model.types.ComponentTrait
+import com.readytalk.jenkins.model.meta.ComponentTrait
 
 /**
  * Contains everything needed to generate a job from the component dsl blocks
@@ -28,22 +28,19 @@ class ItemSource {
       this.itemName = origin.itemName
       this.components = origin.components.asImmutable()
     } else {
-      throw new UnsupportedOperationException("Multi-job post-processing with non-homogenous components not yet supported")
+      throw new UnsupportedOperationException("Multi-job post-processing with non-homogenous components not currently possible")
     }
   }
 
   def generateWith(DslDelegate delegateGenerator) {
     def item = delegateGenerator.create(this)
     prioritizedComponents().each { AbstractComponentType component ->
-      def localContext = getContext()
-      if(component instanceof ComponentTrait) {
-        localContext = component.injectContext(itemContext)
-      }
+      ContextLookup local = component.injectContext(itemContext).getContext()
 
       Closure config = component.getDslConfig().clone()
       config.setDelegate(item)
       config.resolveStrategy = Closure.DELEGATE_FIRST
-      config.call(proxyMaker(localContext).generate(component.getName()))
+      config.call(proxyMaker(local).generate(component.getName()))
     }
     return item
   }
