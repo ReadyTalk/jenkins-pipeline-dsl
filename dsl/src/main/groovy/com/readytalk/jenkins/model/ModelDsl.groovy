@@ -61,13 +61,13 @@ class ModelDsl implements ModelDslMethods {
     ModelValidator.evaluate(registry, tree)
 
     def scoping = new ScopeConstructor(defaultLookup, new ContextMap())
-    def jobList = ModelEvaluator.evaluateTree(registry, tree, scoping)
+    List<ItemSource> jobList = ModelEvaluator.evaluateTree(registry, tree, scoping)
 
     //TODO: Make this optional / flaggable
     ModelPrettyPrinter.printItemList(jobList)
 
     jobList.each {
-      it.generateWith(ModelDsl.&itemCreator.curry(jp) as DslDelegate)
+      it.generateWith((ModelDsl.&itemCreator.curry(jp)) as DslDelegate)
     }
   }
 

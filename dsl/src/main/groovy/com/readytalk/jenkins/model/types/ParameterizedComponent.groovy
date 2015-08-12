@@ -3,6 +3,7 @@ package com.readytalk.jenkins.model.types
 import com.readytalk.jenkins.model.AbstractComponentType
 import com.readytalk.jenkins.model.Fixed
 import com.readytalk.jenkins.model.ItemSource
+import com.readytalk.jenkins.model.meta.AggregateField
 import com.readytalk.util.StringUtils
 
 @Fixed

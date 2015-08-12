@@ -2,7 +2,7 @@ package com.readytalk.jenkins.model.visitors
 
 import com.readytalk.jenkins.model.*
 import com.readytalk.jenkins.model.pipelines.AbstractPipeline
-import com.readytalk.jenkins.model.types.ComponentTrait
+import com.readytalk.jenkins.model.meta.ComponentTrait
 
 //Actually evaluate the model dsl
 //Stacks are mainly for clarity - every ContextMap instance has a reference to its parent already
@@ -26,13 +26,9 @@ class ModelEvaluator extends SymmetricVisitor {
   //NOTE: post-process methods can generate multiple jobs, but only if the jobs have the same component set
   static List<ItemSource> processItems(List<ItemSource> itemList) {
     return itemList.collect { ItemSource source ->
-      return source.components.inject([source]) { itemsSoFar, component ->
+      return source.components.inject([source]) { itemsSoFar, AbstractComponentType component ->
         itemsSoFar.collect { ItemSource item ->
-          if(component instanceof ComponentTrait) {
-            component.postProcess(component.injectItem(item))
-          } else {
-            component.postProcess(item)
-          }
+          component.postProcess(component.injectItem(item))
         }.flatten()
       }
     }.flatten()

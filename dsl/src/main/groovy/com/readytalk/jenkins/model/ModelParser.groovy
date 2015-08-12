@@ -85,8 +85,8 @@ class ItemParser extends ModelParser {
     }
   }
 
+  //Syntactic sugar - add a component with no config closure by pretending it's a property get
   def propertyMissing(String name) {
-    //Assume component with no config
     def type = registry.lookup(name) ?: fieldClippy(name)
     assert type instanceof AbstractComponentType
     elements.add(new ComponentModelElement(type, [:]))

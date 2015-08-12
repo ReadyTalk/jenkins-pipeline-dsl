@@ -1,4 +1,4 @@
-package com.readytalk.jenkins.model.types
+package com.readytalk.jenkins.model.meta
 
 import com.readytalk.jenkins.model.ContextMap
 import com.readytalk.jenkins.model.ItemSource
@@ -32,6 +32,7 @@ trait AggregateField implements ComponentTrait {
       def localScope = item.lookup(componentName, field) ?: [:]
       item.user.bind(componentName, field, defaultsMap + userMap + localScope)
     }
-    return item
+
+    return super.injectItem(item)
   }
 }

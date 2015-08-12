@@ -1,9 +1,9 @@
-package com.readytalk.jenkins.model.types
+package com.readytalk.jenkins.model.meta
 
-import com.readytalk.jenkins.model.ContextLookup
 import com.readytalk.jenkins.model.ItemSource
 import com.readytalk.jenkins.model.ModelContext
 import com.readytalk.jenkins.model.TemplateStr
+import com.readytalk.jenkins.model.types.ParameterizedComponent
 
 //NOTE: should only be used for job components (doesn't even make sense for views)
 //@SelfType(AbstractComponentType) //TODO: Requires Groovy 2.4.x+
@@ -18,26 +18,30 @@ trait ExternalizedFields implements ComponentTrait {
    * Moreover, it rebinds the dsl field value as '${ENVIRONMENT}', so the dslConfig block doesn't need any special handling
    * as long as the field is used as a plain String value
    *
+   * TODO: Problem - if we externalize a field, it can get overridden in an unexpected way by upstream jobs
+   * TODO: passing through parameters, which will override the default setting that's been externalized
+   * Partial solution: on flows, graph out parameters to attempt detection of potential shadowing effects
+   *   Tricky... normally the shadowing is what we want to happen.
+   *
    */
   abstract Map<String,String> getExternalizedFields()
 
-  //Call from post-process step
   ItemSource injectItem(ItemSource item) {
     ItemSource result = item
     getExternalizedFields().each { String field, String paramName ->
-      item = externalizeFieldAs(item, field, paramName ?: paramName.toUpperCase())
+      result = externalizeFieldAs(result, field, paramName ?: paramName.toUpperCase())
     }
-    return [result]
+    return super.injectItem(result)
   }
 
   //Shadows the value of externalized fields within the component execution only
   //Ensures order-independence for other code that may read this field value and should get the real value, not ${FIELD}
-  ContextLookup injectContext(ModelContext itemContext) {
-    def local = itemContext.user.createChildContext()
+  ModelContext injectContext(ModelContext itemContext) {
+    ModelContext overlay = itemContext.childContext()
     getExternalizedFields().each { String field, String paramName ->
-      local.bind(this.getName(), field, "\${${paramName ?: paramName.toUpperCase()}}".toString())
+      overlay.user.bind(this.getName(), field, "\${${paramName ?: paramName.toUpperCase()}}".toString())
     }
-    return local.withFallback(itemContext.defaults)
+    return super.injectContext(overlay)
   }
 
   ItemSource externalizeField(ItemSource item, String field) {
@@ -52,6 +56,7 @@ trait ExternalizedFields implements ComponentTrait {
     assert item.components.contains(ParameterizedComponent.instance), "ExternalizedField trait requires component 'parameterized'"
 
     //TODO: if value is a list, this could still work if we externalize only the first value in the list
+    //Well... or activate it as a choice parameter, but that doesn't make much intuitive sense
     if(!(defaultValue instanceof String)) {
       throw new RuntimeException("${componentName}.${field}: Externalized fields only supported for String values")
     }
@@ -64,8 +69,6 @@ trait ExternalizedFields implements ComponentTrait {
       println "Warning: externalized parameter for ${componentName}.${field} already exists, field default ignored"
       println "         existing default: ${existing}"
     }
-
-//    item.user.bind(componentName, field, "\${${paramName}}".toString())
 
     return item
   }

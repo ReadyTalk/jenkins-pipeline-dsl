@@ -2,9 +2,9 @@ package com.readytalk.jenkins.model.types
 
 import com.readytalk.jenkins.model.AbstractComponentType
 import com.readytalk.jenkins.model.Fixed
-import com.readytalk.jenkins.model.ItemSource
 import com.readytalk.jenkins.model.ProxyDelegate
 import com.readytalk.jenkins.model.TemplateStr
+import com.readytalk.jenkins.model.meta.ExternalizedFields
 import com.readytalk.util.StringUtils
 
 import java.util.regex.Matcher
@@ -121,7 +121,7 @@ class GitComponent extends AbstractComponentType implements ExternalizedFields {
         if (vars.clean) clean()
         wipeOutWorkspace(vars.clearWorkspace)
 
-        def dslBlock = vars.dsl.clone()
+        Closure dslBlock = vars.dsl.clone()
         dslBlock.setDelegate(getDelegate())
         dslBlock.call(vars)
       }
