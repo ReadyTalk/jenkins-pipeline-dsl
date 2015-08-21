@@ -1,6 +1,17 @@
 #Changelog
 ----------
 
+* 0.8.x
+    - Added matrix job support (very minimal - drops down to netflix dsl for
+      axes definition for now)
+    - Full fledged support for ComponentAdapters. This enables extracting out
+      common logic from Components that usually ended up in the postProcess
+      block. For example, I have a JobTypeOverride adapter that can detect
+      conflicts between components trying to set incompatible job types
+    - Pull request builds now build concurrently by default unless explicitly
+      disabled in the parent scope
+    - Allow setting includedRegions on the git component
+
 * 0.7.6
     - Force workspace polling by default for git
         Remote polling using ls-remote turns out to be very fragile, and newer

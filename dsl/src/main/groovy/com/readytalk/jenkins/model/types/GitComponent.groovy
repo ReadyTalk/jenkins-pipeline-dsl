@@ -37,6 +37,7 @@ class GitComponent extends AbstractComponentType {
           provider:       new TemplateStr('${server == "github.com" ? "github" : ""}'),
           workspacePoll:  true, //non-workspace polling is very fragile and error-prone
           dsl:            {},
+          includedRegion: '',
   ]
 
   List traits = [
@@ -136,6 +137,12 @@ class GitComponent extends AbstractComponentType {
     if(vars.workspacePoll) {
       configure { node ->
         node / scm / extensions / 'hudson.plugins.git.extensions.impl.DisableRemotePoll'
+      }
+    }
+
+    if(vars.includedRegion != '') {
+      configure { node ->
+        node / scm / extensions / 'hudson.plugins.git.extensions.impl.PathRestriction' / includedRegions(vars.includedRegion)
       }
     }
 

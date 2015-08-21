@@ -137,4 +137,19 @@ class GitComponentTest extends ModelSpecification {
     then:
     job.scm.extensions.'hudson.plugins.git.extensions.impl.DisableRemotePoll'[0] != null
   }
+
+  def "allows setting includedRegions for polling"() {
+    when:
+    def jobs = generate {
+      basicJob('faux') {
+        git {
+          includedRegion 'subdirectory'
+        }
+      }
+    }
+    def job = jobs.find { it.name.equals('faux') }.getNode()
+
+    then:
+    job.scm.extensions.'hudson.plugins.git.extensions.impl.PathRestriction'.includedRegions[0].value() == 'subdirectory'
+  }
 }
