@@ -1,7 +1,4 @@
 package com.readytalk.jenkins.model
-
-import com.readytalk.jenkins.model.meta.ComponentTrait
-
 /**
  * Contains everything needed to generate a job from the component dsl blocks
  * DslDelegate is a callback to generate the appropriate delegate to generate the components with
@@ -35,7 +32,8 @@ class ItemSource {
   def generateWith(DslDelegate delegateGenerator) {
     def item = delegateGenerator.create(this)
     prioritizedComponents().each { AbstractComponentType component ->
-      ContextLookup local = component.injectContext(itemContext).getContext()
+      ContextLookup local =
+              component.composeAdapter().injectContext(itemContext).getContext()
 
       Closure config = component.getDslConfig().clone()
       config.setDelegate(item)

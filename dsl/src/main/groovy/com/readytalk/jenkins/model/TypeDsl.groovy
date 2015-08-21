@@ -97,10 +97,6 @@ class TypeDsl {
     return add(new ComponentType(name, defaults, config))
   }
 
-  def defaultsComponent(String name, Map defaults, Closure config) {
-    return add(new DefaultsComponentType(name, defaults, config))
-  }
-
   def job(String name, List<String> components, Closure defaults = {}) {
     return add(new JobType(name, components, defaults))
   }

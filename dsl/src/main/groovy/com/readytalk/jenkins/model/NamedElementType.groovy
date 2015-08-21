@@ -1,7 +1,7 @@
 package com.readytalk.jenkins.model
 
 import com.readytalk.jenkins.model.pipelines.AbstractPipeline
-import com.readytalk.jenkins.model.meta.ComponentTrait
+import com.readytalk.jenkins.model.meta.ComponentAdapter
 import com.readytalk.util.ClosureGlue
 import groovy.transform.AnnotationCollector
 import groovy.transform.Immutable
@@ -34,7 +34,7 @@ interface NamedElementType {
  * Defaults are static to avoid dependency hell - if you want to set defaults dynamically, use an item type
  * Item types can't arbitrarily refer to other item's values like components can, and follow a strict hierarchy
  */
-abstract class AbstractComponentType implements NamedElementType, ComponentTrait {
+abstract class AbstractComponentType implements NamedElementType {
   //TODO: Optional automatic type / processing for fields to guarantee string/list format on lookup
   //TODO: Allow components to depend on other components being present
   //Map of component fields to default values
@@ -56,8 +56,17 @@ abstract class AbstractComponentType implements NamedElementType, ComponentTrait
   //Allows components to force ordering - lower value means higher precedence
   int getPriority() { return 50 }
 
-  ItemSource injectItem(ItemSource item) { return item }
-  ModelContext injectContext(ModelContext context) { return context }
+  //TODO: Rename this to adapter instead of traits, to avoid confusion with Groovy's native traits
+  List<ComponentAdapter> traits = []
+
+  //Would be nice to generate this statically, but the performance hit is negligible anyways
+  ComponentAdapter composeAdapter() {
+    return ClosureGlue.monadicFold(ComponentAdapter, getTraits()) {
+      assert it != null, "A component adapter on '${getName()}' returned null, which is forbidden\n" +
+              "Adapter classes: ${getTraits().collect{it.getClass().superclass}}"
+      return it
+    }
+  }
 }
 
 abstract class AbstractItemType implements NamedElementType {

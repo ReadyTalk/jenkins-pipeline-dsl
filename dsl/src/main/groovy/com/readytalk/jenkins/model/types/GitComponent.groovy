@@ -20,7 +20,7 @@ import java.util.regex.Matcher
  * clean: whether to run git clean after checkout
  */
 @Fixed
-class GitComponent extends AbstractComponentType implements ExternalizedFields {
+class GitComponent extends AbstractComponentType {
   String name = 'git'
   //Try not to report build status until all other publishers are done, except for trigger downstream
   int priority = 90
@@ -39,9 +39,14 @@ class GitComponent extends AbstractComponentType implements ExternalizedFields {
           dsl:            {},
   ]
 
-  //TODO: warn that git branch can't be externalized with multiple branches
-  Map<String,String> externalizedFields = [
-          branches: 'BRANCH'
+  List traits = [
+          new ExternalizedFields() {
+            //TODO: warn that git branch can't be externalized with multiple branches
+            //TODO: allow this to be disabled if necessary to avoid shadowing in pipelines
+            Map<String, String> externalizedFields = [
+                    branches: 'BRANCH'
+            ]
+          }
   ]
 
   static Map<String,String> defaults(ProxyDelegate vars) {

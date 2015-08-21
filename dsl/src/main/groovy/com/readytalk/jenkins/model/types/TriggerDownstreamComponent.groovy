@@ -8,16 +8,19 @@ import com.readytalk.jenkins.model.meta.AggregateField
 import com.readytalk.util.StringUtils
 
 @Fixed
-class TriggerDownstreamComponent extends AbstractComponentType implements AggregateField {
+class TriggerDownstreamComponent extends AbstractComponentType {
   String name = 'triggerDownstream'
   //Downstream trigger should the last thing a project does
   int priority = 100
 
-  String aggregateField = 'parameters'
-
-  boolean shouldInherit(ItemSource item) {
-    item.lookup(this.getName(), 'inheritParameters')
-  }
+  List traits = [
+          new AggregateField() {
+            String aggregateField = 'parameters'
+            boolean shouldInherit(ItemSource item) {
+              item.lookup(getName(), 'inheritParameters')
+            }
+          }
+  ]
 
   //TODO: We really need a way to expose endpoints between jobs besides the pipeline constructs
   //TODO: E.g. downstream job can depend on things in the upstream job via the dsl

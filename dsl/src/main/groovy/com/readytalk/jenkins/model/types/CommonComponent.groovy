@@ -17,13 +17,16 @@ class CommonComponent extends AbstractComponentType {
           jdkVersion:       '(Default)',
           useXvnc:          false,
           injectPasswords:  false, //if true, injects global passwords into the build
+          concurrentBuild:  false,
   ]
 
   Closure dslConfig = { vars->
+    concurrentBuild(vars.concurrentBuild)
+
     int historyDays = vars.historyDays == '' ? -1 : vars.historyDays.toInteger()
     logRotator(historyDays, vars.historyCount)
 
-    description("${vars.description}${vars.description != '' ? '\n' : ''}This job is auto-generated")
+    description("${vars.description}\nThis job is auto-generated: all changes except disabling may be overwritten.")
 
     wrappers {
       colorizeOutput('xterm')

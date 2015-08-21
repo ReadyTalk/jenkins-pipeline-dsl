@@ -1,5 +1,9 @@
 package com.readytalk.util
 
+import com.readytalk.jenkins.model.meta.ComponentAdapter
+
+import java.lang.reflect.Method
+
 /**
  * Function composition utilities
  * NOTE: Consider using Closure<T> to enforce same return type
@@ -28,6 +32,49 @@ class ClosureGlue {
       first.call(*args)
       second.call(*args)
     }
+  }
+
+  /**
+   * For a given interface where all methods are of type T method(T),
+   * and a list of actions implementing this interface:
+   * Fold all actions into a single instance of the interface via composition
+   *
+   * Return type is an instance of monadicInterface
+   *
+   * TODO: Split this into smaller pieces - the lift&merge could be a separate function mapped to the list
+   */
+  static def monadicFold(Class monadicInterface, List actions, identity = { it }) {
+    monadicInterface.getMethods().each { Method method ->
+      assert method.parameterTypes.size() == 1 &&
+             method.returnType == method.parameterTypes.first(),
+             "ClosureGlue.monadicFold: interface ${monadicInterface} has " +
+                     "methods that do not match pattern 'T METHOD(T)'. Instead found:\n" +
+                     "${method.returnType} ${method.name}(${method.parameterTypes.join(', ')})"
+    }
+
+    //Unit operation - ensures result is valid even if action list is empty
+    Map<String,Closure> unit = monadicInterface.getMethods().collectEntries {
+      [(it.name): identity]
+    }
+
+    List liftedActions = actions.collect { action ->
+      assert monadicInterface.isAssignableFrom(action.getClass())
+      monadicInterface.getMethods().collectEntries { Method method ->
+        [(method.name): action.&invokeMethod.curry(method.name)]
+      }
+    }
+
+    def result = liftedActions.inject(unit) { Map<String, Closure> aggregate, Map<String, Closure> action ->
+      aggregate.collectEntries { String methodName, Closure cumulative ->
+        def next = action.get(methodName)
+        [(methodName): cumulative << next]
+      }
+    }.asType(monadicInterface)
+
+    assert monadicInterface.isAssignableFrom(result.getClass()),
+            "ClosureGlue internal bug: monadicFold returned ${result.getClass()}," +
+            "which is incompatible with interface ${monadicInterface.getClass()}"
+    return result
   }
 
   /**

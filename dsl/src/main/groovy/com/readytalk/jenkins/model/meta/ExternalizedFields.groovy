@@ -6,8 +6,7 @@ import com.readytalk.jenkins.model.TemplateStr
 import com.readytalk.jenkins.model.types.ParameterizedComponent
 
 //NOTE: should only be used for job components (doesn't even make sense for views)
-//@SelfType(AbstractComponentType) //TODO: Requires Groovy 2.4.x+
-trait ExternalizedFields implements ComponentTrait {
+abstract class ExternalizedFields extends AbstractComponentAdapter {
   /**
    * This method "lifts" a component field into an explicit Jenkins parameter
    * e.g.:
@@ -31,7 +30,7 @@ trait ExternalizedFields implements ComponentTrait {
     getExternalizedFields().each { String field, String paramName ->
       result = externalizeFieldAs(result, field, paramName ?: paramName.toUpperCase())
     }
-    return super.injectItem(result)
+    return result
   }
 
   //Shadows the value of externalized fields within the component execution only
@@ -41,7 +40,7 @@ trait ExternalizedFields implements ComponentTrait {
     getExternalizedFields().each { String field, String paramName ->
       overlay.user.bind(this.getName(), field, "\${${paramName ?: paramName.toUpperCase()}}".toString())
     }
-    return super.injectContext(overlay)
+    return overlay
   }
 
   ItemSource externalizeField(ItemSource item, String field) {

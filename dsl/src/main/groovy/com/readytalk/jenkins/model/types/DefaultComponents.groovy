@@ -9,11 +9,6 @@ import org.reflections.Reflections
 class DefaultComponents implements TypeRegistryBundle {
   static TypeRegistryMap generateTypes(TypeRegistryMap registry) {
     return TypeDsl.evaluate(registry) {
-      defaultsComponent('explicitTrigger', [:]) {
-        common.runSchedule = ''
-        git.trigger = ''
-      }
-
       component('gradle', [tasks: 'ci', flags: '']) { vars ->
         steps {
           gradle(vars.tasks, vars.flags)

@@ -24,29 +24,4 @@ class TypeDslTest extends ModelSpecification {
     new TypeRegistryMap().lookup('group') == GroupType.instance
     TypeRegistryMap.getDefaultTypes().lookup('group') == GroupType.instance
   }
-
-  def "can define defaults component"() {
-    when:
-    types {
-      add OwnershipComponent.instance
-      defaultsComponent('testDefaults', [:]) {
-        ownership.team = 'hello'
-        ownership.email = 'hello@example.com'
-      }
-    }
-
-    def jobs = eval(YamlParser.parse("""
-- fakeJob:
-    name: fake
-    testDefaults:
-    ownership:
-      team: goodbye
-"""))
-
-    def job = jobs.find { it.itemName == 'fake' }
-
-    then:
-    job.lookup('ownership', 'team') == 'goodbye'
-    job.lookup('ownership', 'email') == 'hello@example.com'
-  }
 }

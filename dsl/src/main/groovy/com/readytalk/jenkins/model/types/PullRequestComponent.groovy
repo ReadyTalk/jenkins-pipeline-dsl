@@ -48,6 +48,11 @@ class PullRequestComponent extends AbstractComponentType {
         ownership.hipchatRooms = ''
         ownership.email = ''
       }
+
+      //Enable simultaneous pr builds unless parent scope explicitly disabled them
+      Boolean concurrent = original.user.lookup('common', 'concurrentBuild')
+      common.concurrentBuild = concurrent != null ? concurrent : true
+
       //expand template
       git.repo = original.lookup('git','repo')
       if(prJob.components.contains(GitComponent.instance)) {
@@ -64,7 +69,7 @@ class PullRequestComponent extends AbstractComponentType {
       }
       enabled = false
       common.description = common.description +
-              """\n\nThis job is an auto-generated pull-request only clone of [${original.itemName}](${base.jenkins}/job/${original.itemName})"""
+              """\n\nThis job is a pull-request only clone of [${original.itemName}](${base.jenkins}/job/${original.itemName})"""
       //Disable timer for pull request jobs
       common.runSchedule = ''
       triggerDownstream.jobs = ''

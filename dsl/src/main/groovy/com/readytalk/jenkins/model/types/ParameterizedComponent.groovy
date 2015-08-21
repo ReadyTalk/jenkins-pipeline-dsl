@@ -3,11 +3,12 @@ package com.readytalk.jenkins.model.types
 import com.readytalk.jenkins.model.AbstractComponentType
 import com.readytalk.jenkins.model.Fixed
 import com.readytalk.jenkins.model.ItemSource
+import com.readytalk.jenkins.model.ModelContext
 import com.readytalk.jenkins.model.meta.AggregateField
 import com.readytalk.util.StringUtils
 
 @Fixed
-class ParameterizedComponent extends AbstractComponentType implements AggregateField {
+class ParameterizedComponent extends AbstractComponentType {
   String name = 'parameterized'
 
   Map<String, ?> fields = [
@@ -15,11 +16,14 @@ class ParameterizedComponent extends AbstractComponentType implements AggregateF
           inherit: true
   ]
 
-  String aggregateField = 'parameters'
-
-  boolean shouldInherit(ItemSource item) {
-    return item.lookup(this.getName(), 'inherit')
-  }
+  List traits = [
+          new AggregateField() {
+            String aggregateField = 'parameters'
+            boolean shouldInherit(ItemSource item) {
+              return item.lookup(getName(), 'inherit')
+            }
+          }
+  ]
 
   Closure dslConfig = { vars ->
     if(vars.parameters != [:]) {

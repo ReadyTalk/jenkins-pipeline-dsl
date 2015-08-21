@@ -1,6 +1,7 @@
 package com.readytalk.jenkins.model
 
 import com.readytalk.util.ClosureGlue
+import javaposse.jobdsl.Run
 import spock.lang.Specification
 
 class ClosureGlueTest extends Specification {
@@ -48,5 +49,43 @@ class ClosureGlueTest extends Specification {
 
     then:
     executor.call(map) == 'value'
+  }
+
+  static interface MockComposableInterface {
+    Integer mAdd(Integer a)
+    Integer mMult(Integer a)
+  }
+
+  static interface MockNonComposableInterface {
+    Integer sAdd(Integer a, Integer b)
+    Integer sMult(Integer a, Integer b)
+  }
+
+  def "can fold monadic interfaces together"() {
+    when:
+    List actions = [
+            [mAdd: {it}, mMult: {it}],
+            [mAdd: {it+1}, mMult: {it*2}],
+            [mAdd: {it+1}, mMult: {it*2}]
+    ].collect { it.asType(MockComposableInterface)}
+    MockComposableInterface result =
+            ClosureGlue.monadicFold(MockComposableInterface.class, actions)
+
+    then:
+    result.mAdd(5) == 7
+    result.mMult(2) == 8
+  }
+
+  def "refuses to fold non-monadic interfaces"() {
+    when:
+    List actions = [
+            [mAdd: {it+it}, mMult: {it*it}],
+            [mAdd: {it+it}, mMult: {it*it}],
+    ].collect { it.asType(MockNonComposableInterface)}
+    ClosureGlue.monadicFold(MockNonComposableInterface.class, actions)
+
+    then:
+    AssertionError e = thrown()
+    e.message.contains("ClosureGlue.monadicFold") && e.message.contains('MockNonComposableInterface')
   }
 }

@@ -72,8 +72,9 @@ subprojects {
       version.vcsTag = buildEnv.travisTag
     }
 
-    //bintray plugin is imperative, and can't be lazily configured properly from publications
-    //As a result, the publication names must be manually and explicitly passed into its extension ahead of time
+    //bintray plugin is imperative, and can't be lazily configured properly from
+    //publications As a result, the publication names must be manually and
+    //explicitly passed into its extension ahead of time
     publications = ['jar']
   }
 
@@ -89,5 +90,5 @@ afterEvaluate {
 }
 
 wrapper {
-  gradleVersion = '2.5'
+  gradleVersion = '2.6'
 }

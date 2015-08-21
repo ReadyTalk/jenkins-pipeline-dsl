@@ -2,7 +2,6 @@ package com.readytalk.jenkins.model.visitors
 
 import com.readytalk.jenkins.model.*
 import com.readytalk.jenkins.model.pipelines.AbstractPipeline
-import com.readytalk.jenkins.model.meta.ComponentTrait
 
 //Actually evaluate the model dsl
 //Stacks are mainly for clarity - every ContextMap instance has a reference to its parent already
@@ -28,7 +27,7 @@ class ModelEvaluator extends SymmetricVisitor {
     return itemList.collect { ItemSource source ->
       return source.components.inject([source]) { itemsSoFar, AbstractComponentType component ->
         itemsSoFar.collect { ItemSource item ->
-          component.postProcess(component.injectItem(item))
+          component.postProcess(component.composeAdapter().injectItem(item))
         }.flatten()
       }
     }.flatten()
