@@ -1,5 +1,6 @@
 package com.readytalk.util
 
+import com.readytalk.jenkins.model.PipelineDslException
 import com.readytalk.jenkins.model.meta.ComponentAdapter
 
 import java.lang.reflect.Method
@@ -104,6 +105,23 @@ __executor.delegate = x
 __executor.resolveStrategy = Closure.DELEGATE_FIRST
 __executor.call(*y)"""
       Eval.xy(getDelegate(), args, wrappedCode)
+    }
+  }
+
+  //Helper function for injecting additional context like filename into dsl errors
+  //Can be wrapped multiple times for context from different layers
+  static Closure wrapWithErrorContext(Closure scriptClosure, String context) {
+    return { Object... args ->
+      try {
+        scriptClosure.delegate = getDelegate()
+        scriptClosure.call(*args)
+      } catch(PipelineDslException e) {
+        println "Pipeline DSL Exception in context: ${context}"
+        throw e
+      } catch(RuntimeException e) {
+        println "RuntimeException from context: ${context}"
+        throw e
+      }
     }
   }
 }

@@ -49,7 +49,8 @@ class ModelGenerator {
 
 
   Closure generateFromScript(File scriptFile) {
-    return generateFromScript(scriptFile.text)
+    return ClosureGlue.wrapWithErrorContext(generateFromScript(scriptFile.text),
+            "file: ${scriptFile.absolutePath}")
   }
 
   Closure generateFromScript(String scriptText) {
@@ -67,14 +68,15 @@ class ModelGenerator {
 
   Closure generateFromYaml(File yamlFile) {
     assert yamlFile.isFile()
-    return generateFromYaml(yamlFile.text)
+    return ClosureGlue.wrapWithErrorContext(generateFromYaml(yamlFile.text),
+            "yaml file: ${yamlFile.absolutePath}")
   }
 
   Closure generateFromFile(File file) {
     if(file.name.endsWith('.groovy')) {
-      return generateFromScript(file.text)
+      return generateFromScript(file)
     } else if(file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
-      return generateFromYaml(file.text)
+      return generateFromYaml(file)
     } else {
       throw new UnsupportedOperationException("Don't know how to parse non-yaml, non-groovy dsl script: ${file.name}")
     }

@@ -1,7 +1,12 @@
 #Changelog
 ----------
 
-* 0.8.x
+* 0.8.3
+    - Added context to errors such as yaml or groovy file paths
+    - Added "blankJob" type for jobs that shouldn't pre-apply git
+    - Updated to use upstream job-dsl-core version 1.37
+
+* 0.8.2
     - Added matrix job support (very minimal - drops down to netflix dsl for
       axes definition for now)
     - Full fledged support for ComponentAdapters. This enables extracting out

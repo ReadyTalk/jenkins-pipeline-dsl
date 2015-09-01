@@ -113,7 +113,11 @@ class TypeDsl {
   }
 
   def job(String parentName, String name, List<String> components, Closure defaults = {}) {
-    return job(registry.lookup(parentName), name, components, defaults)
+    AbstractItemType parentType = registry.lookup(parentName)
+    if(parentType == null) {
+      throw new RuntimeException("Cannot inherit from job type ${parentName} because it doesn't exist!")
+    }
+    return job(parentType, name, components, defaults)
   }
 
   def add(NamedElementType type) {

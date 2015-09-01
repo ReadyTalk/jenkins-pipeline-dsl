@@ -5,6 +5,7 @@ import com.readytalk.jenkins.ItemType
 import com.readytalk.jenkins.ModelGenerator
 import com.readytalk.jenkins.model.ContextMap
 import com.readytalk.jenkins.model.GroupModelElement
+import com.readytalk.jenkins.model.ModelDsl
 import com.readytalk.util.ClosureGlue
 
 import org.gradle.api.Plugin
@@ -37,12 +38,17 @@ class ReadytalkJenkinsPlugin implements Plugin<Project> {
       config.typeBlocks.each(modelGen.modelDsl.&types)
 
       //Set defaults
-      modelGen.modelDsl.defaults(config.getDefaults())
+      modelGen.modelDsl.defaults(ClosureGlue.wrapWithErrorContext(config.getDefaults(),
+          "gradle plugin defaults block from ${project.buildFile.absolutePath}"))
 
       //Collect all parsed trees under a single root for convenience
       GroupModelElement rootTree = modelGen.evaluate{}
-      Closure evaluator = modelGen.&evaluate.rcurry(rootTree)
-      Closure fileEvaluator = evaluator << modelGen.&generateFromFile
+      Closure evaluator =
+              ClosureGlue.wrapWithErrorContext(modelGen.&evaluate.rcurry(rootTree),
+                      "dsl closure in gradle file ${project.buildFile.absolutePath}")
+      Closure fileEvaluator =
+              ClosureGlue.wrapWithErrorContext(evaluator << modelGen.&generateFromFile,
+                      "file specified by gradle plugin from ${project.buildFile.absolutePath}")
 
       config.modelBlocks.each(evaluator)
 

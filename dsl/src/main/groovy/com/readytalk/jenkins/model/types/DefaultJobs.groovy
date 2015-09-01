@@ -4,13 +4,16 @@ import com.readytalk.jenkins.model.TypeDsl
 import com.readytalk.jenkins.model.TypeRegistryBundle
 import com.readytalk.jenkins.model.TypeRegistryMap
 
+//TODO: There's no way to list available job types atm
+//      It's less of an issue for components, since they show up in the output
 class DefaultJobs implements TypeRegistryBundle {
   static TypeRegistryMap generateTypes(TypeRegistryMap registry) {
     return TypeDsl.evaluate(registry) {
+      job('blankJob', ['base', 'common', 'parameterized']) {}
+
       job('basicJob', 'gradleProject', ['gradle', 'jvmMetrics', 'pullRequest'])
 
       job('basicJob', 'puppetModule', ['rake', 'puppetMetrics', 'pullRequest'])
-
 
       job('gradleProject', 'gradleJSProject', ['regexStatus']) {
         regexStatus.pattern = '(?)^(assertionerror|error|typeerror)'
@@ -24,7 +27,7 @@ class DefaultJobs implements TypeRegistryBundle {
         }
       }
 
-      job('fitnesseTestJob', ['base','common','ownership','parameterized','fitnesse']) {
+      job('blankJob', 'fitnesseTestJob', ['ownership','fitnesse']) {
         parameterized.parameters = [
                 suite_name: fitnesse.suite,
                 tag_specifier: '',

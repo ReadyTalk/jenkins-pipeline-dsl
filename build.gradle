@@ -41,7 +41,7 @@ subprojects {
   dependencies {
     compile (
       localGroovy(),
-      'org.jenkins-ci.plugins:job-dsl-core:1.35',
+      'org.jenkins-ci.plugins:job-dsl-core:1.37',
     )
 
     testCompile (

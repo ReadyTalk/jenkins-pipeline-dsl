@@ -121,24 +121,6 @@ class JobType extends AbstractItemType {
   Closure defaults
 }
 
-//Convenience type for creating components that only need to set defaults
-//TODO: Consider deprecating this; ended up not being very useful
-@Immutable
-class DefaultsComponentType extends AbstractComponentType {
-  String name
-  Map<String,?> fields
-  Closure overrides
-
-  ItemSource[] postProcess(ItemSource source) {
-    ProxyDelegate proxy = source.proxyMaker(source.context, source.defaults).generate()
-    Closure config = overrides.clone()
-    config.delegate = proxy
-    config.resolveStrategy = Closure.DELEGATE_FIRST
-    config.call(proxy)
-    return [source]
-  }
-}
-
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface ComponentField {}
