@@ -44,13 +44,13 @@ class ModelPrettyPrinter extends SymmetricVisitor {
       source.prioritizedComponents().each { component ->
         println AnsiRenderer.render("    @|white ${component.name}|@:")
         component.fields.each { k, v ->
-          def value = source.lookup(component.name, k)
+          def value = source.lookupValue(component.name, k)
           String color = ''
           if(value == null) {
             color = 'bold,red'
           } else if(value == component.fields[k]) {
             color = 'faint,white'
-          } else if(value == source.lookup(component.getName(), k, source.defaults)) {
+          } else if(value == source.lookupValue(component.getName(), k, source.defaults)) {
             color = 'faint,green'
           } else if(source.user.context.containsKey(k)) {
             color = 'bold,green'

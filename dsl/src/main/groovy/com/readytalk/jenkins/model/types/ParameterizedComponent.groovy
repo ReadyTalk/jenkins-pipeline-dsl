@@ -20,7 +20,7 @@ class ParameterizedComponent extends AbstractComponentType {
           new AggregateField() {
             String aggregateField = 'parameters'
             boolean shouldInherit(ItemSource item) {
-              return item.lookup(getName(), 'inherit')
+              return item.lookupValue(getName(), 'inherit')
             }
           }
   ]

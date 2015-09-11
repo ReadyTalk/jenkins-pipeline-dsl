@@ -12,6 +12,7 @@ class CommonComponent extends AbstractComponentType {
           historyDays:      '',  //days to keep build history
           historyCount:     30,  //builds to keep if days not set
           description:      '',  //job description
+          //TODO: This should use the env,VAR syntax instead
           buildName:        '#${BUILD_NUMBER}-${GIT_BRANCH}',
           buildHost:        '',
           jdkVersion:       '(Default)',

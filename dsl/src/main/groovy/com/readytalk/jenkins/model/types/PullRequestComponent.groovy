@@ -32,7 +32,7 @@ class PullRequestComponent extends AbstractComponentType {
 
   //Duplicates job with different name and git refspec
   ItemSource[] postProcess(ItemSource original) {
-    if(!(original.context.lookup(name, 'enabled'))) {
+    if(!(original.context.lookup(name, 'enabled').get())) {
       return [original]
     }
 
@@ -54,7 +54,7 @@ class PullRequestComponent extends AbstractComponentType {
       common.concurrentBuild = concurrent != null ? concurrent : true
 
       //expand template
-      git.repo = original.lookup('git','repo')
+      git.repo = original.lookupValue('git','repo')
       if(prJob.components.contains(GitComponent.instance)) {
         switch (git.provider) {
           case 'stash':

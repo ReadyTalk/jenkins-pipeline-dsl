@@ -148,7 +148,7 @@ abstract class AbstractPipeline {
       //Configuration for passing workspaces between stages
       //TODO: This ought to work with any other job in the dsl, not just the pipeline
       if (job.components.contains(CloneWorkspaceComponent.instance)) {
-        String upstreamName = job.lookup('cloneWorkspace', 'upstream')
+        String upstreamName = job.lookupValue('cloneWorkspace', 'upstream')
         def upstreamJobs = transitiveJobsUpstreamOf(job).findAll { ItemSource item ->
           return item.components.contains(TriggerDownstreamComponent.instance) &&
                   item.itemName == upstreamName

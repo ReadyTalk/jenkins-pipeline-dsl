@@ -2,6 +2,7 @@ package com.readytalk.jenkins.model.types
 
 import com.readytalk.jenkins.model.AbstractComponentType
 import com.readytalk.jenkins.model.Fixed
+import com.readytalk.jenkins.model.ProxyDelegate
 
 @Fixed
 class RakeComponent extends AbstractComponentType {
@@ -12,7 +13,7 @@ class RakeComponent extends AbstractComponentType {
     tasks: ['ci']
   ]
 
-  Closure dslConfig = { vars->
+  Closure dslConfig = { ProxyDelegate vars ->
     wrappers {
       rbenv(vars.rubyVersion) {
         gems('bundler', 'rake')

@@ -1,6 +1,7 @@
 package com.readytalk.jenkins.model
 
 import com.readytalk.jenkins.model.types.GitComponent
+import com.readytalk.jenkins.model.types.MatrixComponent
 import com.readytalk.jenkins.model.types.OwnershipComponent
 import com.readytalk.jenkins.model.types.ParameterizedComponent
 import com.readytalk.jenkins.model.types.PullRequestComponent

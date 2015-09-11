@@ -5,7 +5,7 @@ import com.readytalk.util.StringUtils
 import groovy.transform.TupleConstructor
 
 interface ContextLookup {
-  def lookup(String namespace, String field)
+  Optional lookup(String namespace, String field)
 }
 
 interface ContextBind {
@@ -35,38 +35,38 @@ class ContextMap implements ContextLookup, ContextBind {
   }
 
   static ContextLookup mergeLookups(ContextLookup first, ContextLookup second) {
-    return ClosureGlue.fallbackIfNull(first.&lookup, second.&lookup) as ContextLookup
+    return ClosureGlue.fallbackIfEmpty(first.&lookup, second.&lookup) as ContextLookup
   }
 
   ContextLookup withFallback(ContextLookup fallback) {
-    return ContextMap.mergeLookups(this, fallback)
+    return mergeLookups(this, fallback)
   }
 
   void bindAppend(ContextLookup withScope, String namespace, String field, value) {
-    this.bind(namespace, field, (withScope.lookup(namespace, field) ?: [:]) + value)
+    this.bind(namespace, field, (withScope.lookup(namespace, field).orElse([:])) + value)
   }
 
   void bindPrepend(ContextLookup withScope, String namespace, String field, value) {
-    this.bind(namespace, field, value + (withScope.lookup(namespace, field) ?: [:]))
+    this.bind(namespace, field, value + (withScope.lookup(namespace, field).orElse([:])))
   }
 
-  //Check this context for value, then check parent context
-  def lookup(String componentName, String field) {
+  //Check this context for value, then check parent context if possible
+  Optional lookup(String componentName, String field) {
     if(componentName == null) return lookup('', field)
-    def value
+    def box
     if(context.get(componentName)?.containsKey(field)) {
-      value = context.get(componentName).get(field)
+      box = Optional.of(context.get(componentName).get(field))
     } else {
-      value = parent != null ? parent.lookup(componentName,field) : null
+      box = parent != null ? parent.lookup(componentName,field) : Optional.empty()
     }
 
-    if(value != null && value instanceof Collection) {
+    if(box.present && box.get() instanceof Collection) {
       //This is required to ensure binders can't accidentally modify higher scope defaults for map/list values
       //i.e. 'something.map.put(key,value)' is illegal, but 'something.map = something.map + [key: value]' is okay
       //Not needed for Strings, since those are already immutable by default in the JVM
-      return value.asImmutable()
+      return Optional.of(box.get().asImmutable())
     }
-    return value
+    return box
   }
 
   //TODO: Verify that bound values actually correspond to real component parameters
@@ -90,7 +90,7 @@ class ContextMap implements ContextLookup, ContextBind {
 class DefaultContext implements ContextLookup {
   TypeRegistry registry
 
-  def lookup(String componentName, String field) {
-    return registry.lookup(componentName)?.fields?.get(field)
+  Optional lookup(String componentName, String field) {
+    return Optional.ofNullable(registry.lookup(componentName)?.fields?.get(field))
   }
 }

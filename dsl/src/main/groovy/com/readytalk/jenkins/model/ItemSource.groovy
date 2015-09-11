@@ -1,10 +1,16 @@
 package com.readytalk.jenkins.model
+
+import com.readytalk.jenkins.model.meta.ComponentAdapter
+import com.readytalk.util.ClosureGlue
+import groovy.transform.TypeChecked
+
 /**
  * Contains everything needed to generate a job from the component dsl blocks
  * DslDelegate is a callback to generate the appropriate delegate to generate the components with
  */
 class ItemSource {
   //TODO: Keep context confined to ItemSource (remove from ModelElement classes)
+  //TODO: We're hitting conflicts between vanilla and injected context - should we always inject context?
   @Delegate ModelContext itemContext
   Set<AbstractComponentType> components
   Closure<ContextProxy> proxyMaker
@@ -31,15 +37,19 @@ class ItemSource {
 
   def generateWith(DslDelegate delegateGenerator) {
     def item = delegateGenerator.create(this)
-    prioritizedComponents().each { AbstractComponentType component ->
-      ContextLookup local =
-              component.composeAdapter().injectContext(itemContext).getContext()
 
-      Closure config = component.getDslConfig().clone()
+    ComponentAdapter adapter = ClosureGlue.monadicFold(ComponentAdapter,
+            prioritizedComponents().collect { it.getTraits() }.flatten())
+
+    ContextLookup local = adapter.injectContext(itemContext).getContext()
+
+    prioritizedComponents().each { AbstractComponentType component ->
+      Closure config = (Closure)component.getDslConfig().clone()
       config.setDelegate(item)
       config.resolveStrategy = Closure.DELEGATE_FIRST
       config.call(proxyMaker(local).generate(component.getName()))
     }
+
     return item
   }
 
@@ -48,15 +58,15 @@ class ItemSource {
   }
 
   String getItemName() {
-    return context.lookup('base','name')
+    return context.lookup('base','name').get()
   }
 
   void setItemName(String name) {
     user.bind('base','name',name)
   }
 
-  def lookup(String namespace, String field, ContextLookup lookupContext = context) {
-    return proxyMaker(lookupContext).generate(namespace)."${field}"
+  def lookupValue(String namespace, String field, ContextLookup lookupContext = context) {
+    return proxyMaker(lookupContext).generate(namespace).getProperty(field)
   }
 }
 

@@ -22,6 +22,16 @@ class ClosureGlue {
   }
 
   /**
+   * Same as fallbackIfNull, but with Optionals instead
+   */
+  static Closure<Optional> fallbackIfEmpty(Closure<Optional> function, Closure<Optional> fallback) {
+    return { Object ...args ->
+      Optional box = function.call(*args)
+      return box.present ? box : fallback.call(*args)
+    }
+  }
+
+  /**
    * Combine two void functions while preserving the delegate
    */
   static Closure combinePreservingDelegate(Closure first, Closure second) {

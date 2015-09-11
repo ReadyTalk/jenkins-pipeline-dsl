@@ -27,7 +27,7 @@ abstract class AggregateField extends AbstractComponentAdapter {
       def defaultsMap = aggregate(item.defaults)
       def userMap = aggregate(item.user)
 
-      def localScope = item.lookup(componentName, field) ?: [:]
+      def localScope = item.lookupValue(componentName, field) ?: [:]
       item.user.bind(componentName, field, defaultsMap + userMap + localScope)
     }
     return item

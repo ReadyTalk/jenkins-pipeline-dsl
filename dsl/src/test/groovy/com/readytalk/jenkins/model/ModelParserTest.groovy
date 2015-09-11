@@ -91,7 +91,7 @@ class ModelParserTest extends ModelSpecification {
     }
 
     then:
-    items.find { it.itemName == 'jobOne' }.lookup('fauxComponent', 'field') == 'inner'
-    items.find { it.itemName == 'jobTwo' }.lookup('fauxComponent', 'field') == 'outer'
+    items.find { it.itemName == 'jobOne' }.lookupValue('fauxComponent', 'field') == 'inner'
+    items.find { it.itemName == 'jobTwo' }.lookupValue('fauxComponent', 'field') == 'outer'
   }
 }

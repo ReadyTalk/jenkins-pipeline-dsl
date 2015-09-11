@@ -38,8 +38,8 @@ class ParameterizedComponentTest extends ModelSpecification {
         }
       }
     }
-    def inheritTrue = jobs.find { it.itemName == 'parameterizedJob' }.context.lookup('parameterized', 'parameters')
-    def inheritFalse = jobs.find { it.itemName == 'noInheritJob' }.context.lookup('parameterized', 'parameters')
+    def inheritTrue = jobs.find { it.itemName == 'parameterizedJob' }.context.lookup('parameterized', 'parameters').get()
+    def inheritFalse = jobs.find { it.itemName == 'noInheritJob' }.context.lookup('parameterized', 'parameters').get()
 
     then:
     inheritTrue.JOB == 'job'
@@ -117,7 +117,7 @@ class ParameterizedComponentTest extends ModelSpecification {
 
     println "JOBS: ${jobs}"
     def job = jobs.find { it.itemName == 'fake' }
-    def params = job.lookup('parameterized', 'parameters')
+    def params = job.lookupValue('parameterized', 'parameters')
 
     then:
     params.ALPHA == 'one'

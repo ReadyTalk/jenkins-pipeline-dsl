@@ -31,7 +31,7 @@ class GitComponent extends AbstractComponentType {
           clean:          true,
           clearWorkspace: false,
           refspec:        '',
-          trigger:        '#Git triggered polling',
+          trigger:        true, //Can also set to string for scheduled polling
           credentials:    '',
           server:         'github.com',
           provider:       new TemplateStr('${server == "github.com" ? "github" : ""}'),
@@ -159,9 +159,13 @@ class GitComponent extends AbstractComponentType {
       }
     }
 
-    if (!vars.trigger.equals('')) {
+    def gitTrigger = vars.trigger
+    if((gitTrigger instanceof String && gitTrigger != '') || gitTrigger.toBoolean()) {
+      if(!(gitTrigger instanceof String)) {
+        gitTrigger = "#Trigger polling from url:\n#${vars.base.jenkins}/git/notifyCommit?url=${map.url}"
+      }
       triggers {
-        scm(vars.trigger)
+        scm(gitTrigger)
       }
     }
   }

@@ -11,8 +11,8 @@ class OwnershipComponent extends AbstractComponentType {
   int priority = 95
 
   Map<String,?> fields = [
-          team: '',         //Team name
-          email: '',        //Defaults to "rt.TEAM@readytalk.com"
+          team: '',
+          email: '',
           vcsProject: new TemplateStr('${team}'),   //Defaults to team name
           hipchatRooms: '',
           hipchatLevel: 'FAILURE_AND_FIXED'
@@ -30,7 +30,7 @@ class OwnershipComponent extends AbstractComponentType {
           strategyName(vars.hipchatLevel)
         }
       }
-      if(vars.email != '') {
+      if(vars.email) {
         mailer(vars.email, true, true)
       }
     }

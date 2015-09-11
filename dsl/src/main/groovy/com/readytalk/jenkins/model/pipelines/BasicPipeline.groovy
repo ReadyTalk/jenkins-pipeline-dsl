@@ -27,7 +27,7 @@ class BasicPipeline extends AbstractPipeline {
         ]
       }
       def buildJob = TriggerDownstreamComponent.instance.postProcess(new ItemSource(job)).first()
-      pipelineParams.putAll(buildJob.lookup('triggerDownstream','parameters'))
+      pipelineParams.putAll(buildJob.lookupValue('triggerDownstream','parameters'))
     }
 
     //Strip default values that might only make sense in context of original build jobs
@@ -37,7 +37,7 @@ class BasicPipeline extends AbstractPipeline {
     findJobs{stage, _ -> stage != 'build' }.each { ItemSource job ->
       injectComponent(job, ParameterizedComponent.instance)
       job.defaults.with {
-        bindAppend(job.defaults, 'parameterized', 'parameters', [BUILD_COMMIT: job.lookup('git', 'branches')])
+        bindAppend(job.defaults, 'parameterized', 'parameters', [BUILD_COMMIT: job.lookupValue('git', 'branches')])
         bind('pullRequest','enabled',false)
         bind('common','runSchedule','')
         bind('git','trigger','')

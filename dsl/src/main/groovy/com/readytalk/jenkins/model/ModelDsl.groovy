@@ -25,7 +25,7 @@ class ModelDsl implements ModelDslMethods {
   }
 
   protected static def itemCreator(JobParent jp, ItemSource source) {
-    String type = source.context.lookup('base','type')
+    String type = source.context.lookup('base','type').get()
     return jp.invokeMethod(type, [source.itemName, {}])
   }
 
