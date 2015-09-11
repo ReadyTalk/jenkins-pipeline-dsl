@@ -85,27 +85,28 @@ class ModelSpecification extends Specification {
   }
 
   static class MockTypeMap extends TypeRegistryMap {
+    static boolean verbose = false
     @Override
     NamedElementType lookup(String typeName) {
-      print "Mock lookup of '${typeName}': "
+      verbose && print("Mock lookup of '${typeName}': ")
       if(typeName.equals('')) {
-        println "  returning null for blank type name"
+        verbose && println("  returning null for blank type name")
         return null
       }
       if(types.containsKey(typeName)) {
-        println "  found named type ${typeName}"
+        verbose && println("  found named type ${typeName}")
         return types.get(typeName)
       }
       if(typeName.startsWith('c') || typeName.contains('Component')) {
-        println "    generating fake component ${typeName}"
+        verbose && println("    generating fake component ${typeName}")
         types.put(typeName, new ComponentType(typeName, [field: 'defaultValue'], {}))
         return types.get(typeName)
       } else if(typeName.startsWith('j') || typeName.contains('Job')) {
-        println "    generating fake job ${typeName}"
+        verbose && println("    generating fake job ${typeName}")
         types.put(typeName, new JobType(typeName, ['base'], {}))
         return types.get(typeName)
       } else {
-        println "    can't generate requested fake type ${typeName}"
+        verbose && println("    can't generate requested fake type ${typeName}")
         return null
       }
     }

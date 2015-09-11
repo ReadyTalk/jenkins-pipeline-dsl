@@ -127,6 +127,25 @@ class GitComponentTest extends ModelSpecification {
     'github' | "https://github.com/group/repo/"                | "git@github.com:"
   }
 
+  def "externalizes branch parameter correctly"() {
+    when:
+    def jobs = generate {
+      basicJob('repo') {
+        git {
+          branches = 'development'
+        }
+      }
+    }
+
+    def job = jobs.find { it.name.equals('repo') }.getNode()
+    def paramXml = job.properties.'hudson.model.ParametersDefinitionProperty'.parameterDefinitions
+    println paramXml
+
+    then:
+    paramXml.'hudson.model.StringParameterDefinition'.name[0].value() == 'BRANCH'
+    paramXml.'hudson.model.StringParameterDefinition'.defaultValue[0].value() == 'development'
+  }
+
   def "forces more reliable workspace cloning by default"() {
     when:
     def jobs = generate {

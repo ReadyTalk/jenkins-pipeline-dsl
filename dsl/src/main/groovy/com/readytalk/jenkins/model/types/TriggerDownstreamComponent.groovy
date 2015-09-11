@@ -17,7 +17,7 @@ class TriggerDownstreamComponent extends AbstractComponentType {
           new AggregateField() {
             String aggregateField = 'parameters'
             boolean shouldInherit(ItemSource item) {
-              item.lookup(getName(), 'inheritParameters')
+              item.lookupValue(getName(), 'inheritParameters')
             }
           }
   ]

@@ -7,6 +7,7 @@ import com.readytalk.jenkins.model.types.GitComponent
 import com.readytalk.jenkins.model.types.ParameterizedComponent
 import com.readytalk.jenkins.model.types.TriggerDownstreamComponent
 import spock.lang.Ignore
+import spock.lang.Unroll
 
 class PipelineTest extends ModelSpecification {
   def setup() {
@@ -52,15 +53,15 @@ class PipelineTest extends ModelSpecification {
     }
     def buildJob = jobs.find { it.itemName == 'fake-build' }
     def deployJob = jobs.find { it.itemName == 'fake-deploy' }
-    Collection<String> buildDownstream = buildJob?.lookup('triggerDownstream','jobs')
+    Collection<String> buildDownstream = buildJob?.lookupValue('triggerDownstream','jobs')
 
     println "Two Job Pipeline Jobs names: ${jobs.collect{it.itemName}}"
 
     then:
     buildJob != null
     deployJob != null
-    buildJob.lookup('fauxComponent', 'field') == 'commonValue'
-    deployJob.lookup('fauxComponent','field') == 'deployValue'
+    buildJob.lookupValue('fauxComponent', 'field') == 'commonValue'
+    deployJob.lookupValue('fauxComponent','field') == 'deployValue'
     buildDownstream != null
     buildDownstream.contains('fake-deploy')
   }
@@ -84,8 +85,8 @@ class PipelineTest extends ModelSpecification {
     then:
     directJob != null
     indirectJob != null
-    directJob.lookup('triggerDownstream','manual') == true
-    indirectJob.lookup('triggerDownstream','manual') == true
+    directJob.lookupValue('triggerDownstream','manual') == true
+    indirectJob.lookupValue('triggerDownstream','manual') == true
   }
 
   def "sequential pipeline uses simple ordering"() {
@@ -99,8 +100,8 @@ class PipelineTest extends ModelSpecification {
     }
 
     then:
-    jobs.find { it.itemName == 'count-one' }.lookup('triggerDownstream', 'jobs').contains('count-two')
-    jobs.find { it.itemName == 'count-two' }.lookup('triggerDownstream', 'jobs').contains('count-three')
+    jobs.find { it.itemName == 'count-one' }.lookupValue('triggerDownstream', 'jobs').contains('count-two')
+    jobs.find { it.itemName == 'count-two' }.lookupValue('triggerDownstream', 'jobs').contains('count-three')
   }
 
   //TODO: We should probably check for circular dependencies in general
@@ -146,13 +147,14 @@ class PipelineTest extends ModelSpecification {
     }
   }
 
-  def "injects clone workspace configuration"() {
+  @Unroll
+  def "injects clone workspace configuration for #pipelineType"() {
     when:
     registry.add(CloneWorkspaceComponent.instance)
     registry.add(GitComponent.instance)
 
     def jobs = eval {
-      pipeline('clone') {
+      "${pipelineType}"('clone') {
         build(type: 'fakeJob')
         deploy(type: 'fakeJob')
         promote(type: 'fakeJob') {
@@ -166,9 +168,12 @@ class PipelineTest extends ModelSpecification {
 
     then:
     registry.lookup('cloneWorkspace') == CloneWorkspaceComponent.instance
-    jobs.find { it.itemName == 'clone-build' }.lookup('triggerDownstream', 'copyWorkspace') == true
-    jobs.find { it.itemName == 'clone-deploy' }.lookup('triggerDownstream', 'copyWorkspace') == false
+    jobs.find { it.itemName == 'clone-build' }.lookupValue('triggerDownstream', 'copyWorkspace') == true
+    jobs.find { it.itemName == 'clone-deploy' }.lookupValue('triggerDownstream', 'copyWorkspace') == false
     downstream.components.contains(CloneWorkspaceComponent.instance)
     !downstream.components.contains(GitComponent.instance)
+
+    where:
+    pipelineType << ['pipeline', 'sequential']
   }
 }

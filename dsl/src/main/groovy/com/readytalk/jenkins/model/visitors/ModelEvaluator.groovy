@@ -1,7 +1,9 @@
 package com.readytalk.jenkins.model.visitors
 
 import com.readytalk.jenkins.model.*
+import com.readytalk.jenkins.model.meta.ComponentAdapter
 import com.readytalk.jenkins.model.pipelines.AbstractPipeline
+import com.readytalk.util.ClosureGlue
 
 //Actually evaluate the model dsl
 //Stacks are mainly for clarity - every ContextMap instance has a reference to its parent already
@@ -25,9 +27,11 @@ class ModelEvaluator extends SymmetricVisitor {
   //NOTE: post-process methods can generate multiple jobs, but only if the jobs have the same component set
   static List<ItemSource> processItems(List<ItemSource> itemList) {
     return itemList.collect { ItemSource source ->
-      return source.components.inject([source]) { itemsSoFar, AbstractComponentType component ->
+      ItemSource injected = ClosureGlue.monadicFold(ComponentAdapter,
+              source.components.collect { it.getTraits() }.flatten()).injectItem(source)
+      return source.components.inject([injected]) { itemsSoFar, AbstractComponentType component ->
         itemsSoFar.collect { ItemSource item ->
-          component.postProcess(component.composeAdapter().injectItem(item))
+          component.postProcess(item)
         }.flatten()
       }
     }.flatten()

@@ -9,8 +9,8 @@ class ContextTest extends ModelSpecification {
     root.bind('cBeta', 'field', 'betaRootValue')
   }
 
-  def createProxy() {
-    ProxyDelegate proxy = new ContextProxy(registry: registry, getter: root, setter: root).generate()
+  def createProxy(ContextMap context = root) {
+    ProxyDelegate proxy = new ContextProxy(registry: registry, getter: context, setter: context).generate()
     //Ensure registry is filled out
     model {
       cAlpha { field 'alphaValue' }
@@ -25,15 +25,17 @@ class ContextTest extends ModelSpecification {
     def child = root.createChildContext()
     def child2 = root.createChildContext()
     then:
-    child.lookup('cAlpha', 'field').equals('alphaRootValue')
-    child2.lookup('cBeta', 'field').equals('betaRootValue')
+    child.lookup('cAlpha', 'field').get() == 'alphaRootValue'
+    child2.lookup('cBeta', 'field').get() == 'betaRootValue'
   }
 
   def "ContextMap lookup uses most specific value"() {
     when:
-    def child = root.createChildContext().bind('cBeta', 'field', 'childValue')
+    ContextMap child = root.createChildContext()
+    child.bind('cBeta', 'field', 'childValue')
+
     then:
-    child.lookup('cBeta','field').equals('childValue')
+    child.lookup('cBeta','field').get() == 'childValue'
   }
 
   def "context lookup can be proxied"() {
@@ -43,15 +45,16 @@ class ContextTest extends ModelSpecification {
     def block = { vars -> return vars.field.equals('alphaRootValue') }
 
     then:
-    alphaProxy.cBeta.field.equals('betaRootValue')
-    alphaProxy.field.equals('alphaRootValue')
-    proxy.cBeta.field.equals('betaRootValue')
+    alphaProxy.cBeta.field == 'betaRootValue'
+    alphaProxy.field == 'alphaRootValue'
+    proxy.cBeta.field == 'betaRootValue'
     block.call(alphaProxy)
   }
 
   def "context binding can be proxied"() {
     when:
-    def proxy = createProxy()
+    //Use child context as binding is immutable by default
+    def proxy = createProxy(root.createChildContext())
     def betaProxy = proxy.cBeta
     proxy.cAlpha.field = 'newAlphaValue'
     def block = {
@@ -67,8 +70,8 @@ class ContextTest extends ModelSpecification {
     block.call()
 
     then:
-    proxy.cAlpha.field.equals 'newAlphaValue'
-    betaProxy.field.equals 'newBetaValue'
-    proxy.cDelta.field.equals 'equalsValue'
+    proxy.cAlpha.field == 'newAlphaValue'
+    betaProxy.field == 'newBetaValue'
+    proxy.cDelta.field == 'equalsValue'
   }
 }

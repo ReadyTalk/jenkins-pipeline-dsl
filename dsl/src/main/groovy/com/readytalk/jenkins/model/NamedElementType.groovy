@@ -1,5 +1,6 @@
 package com.readytalk.jenkins.model
 
+
 import com.readytalk.jenkins.model.pipelines.AbstractPipeline
 import com.readytalk.jenkins.model.meta.ComponentAdapter
 import com.readytalk.util.ClosureGlue

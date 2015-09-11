@@ -21,7 +21,6 @@ abstract class ExternalizedFields extends AbstractComponentAdapter {
    * TODO: passing through parameters, which will override the default setting that's been externalized
    * Partial solution: on flows, graph out parameters to attempt detection of potential shadowing effects
    *   Tricky... normally the shadowing is what we want to happen.
-   *
    */
   abstract Map<String,String> getExternalizedFields()
 
@@ -49,7 +48,7 @@ abstract class ExternalizedFields extends AbstractComponentAdapter {
 
   ItemSource externalizeFieldAs(ItemSource item, String field, String paramName) {
     String componentName = this.getName()
-    def defaultValue = item.lookup(componentName, field)
+    def defaultValue = item.lookupValue(componentName, field)
 
     //Can't auto-add here as it would break the iterator invariants for postProcess
     assert item.components.contains(ParameterizedComponent.instance), "ExternalizedField trait requires component 'parameterized'"
@@ -61,10 +60,10 @@ abstract class ExternalizedFields extends AbstractComponentAdapter {
     }
 
     def paramTemplate = new TemplateStr("\${${componentName}.${field}}")
-    if(!(item.lookup('parameterized', 'parameters').containsKey(paramName))) {
+    if(!(item.lookupValue('parameterized', 'parameters').containsKey(paramName))) {
       item.user.bindAppend(item.user, 'parameterized', 'parameters', [(paramName): paramTemplate])
     } else {
-      def existing = item.lookup('parameterized','parameters').get(paramName)
+      def existing = item.lookupValue('parameterized','parameters').get(paramName)
       println "Warning: externalized parameter for ${componentName}.${field} already exists, field default ignored"
       println "         existing default: ${existing}"
     }

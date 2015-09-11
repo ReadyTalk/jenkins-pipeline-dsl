@@ -22,8 +22,8 @@ class JenkinsConfigExtension implements ModelDslMethods {
   FileCollection scriptFiles
   List<Closure> modelBlocks = []
   List<Closure> typeBlocks = []
-  String url
-  String username
+  String url = 'JENKINS_URL'
+  String username = 'jenkins'
   String password
 
   JenkinsConfigExtension(ReadytalkJenkinsPlugin plugin) {

@@ -32,7 +32,7 @@ class YamlTest extends ModelSpecification {
 """))
 
     then:
-    items.find { it.itemName == 'pipetest-build' }.lookup('git', 'repo') == 'team/repository'
+    items.find { it.itemName == 'pipetest-build' }.lookupValue('git', 'repo') == 'team/repository'
     items.find { it.itemName == 'pipetest-deploy'} != null
   }
 
@@ -69,8 +69,8 @@ class YamlTest extends ModelSpecification {
 """))
 
     then:
-    items.find { it.itemName == 'paramTestOverride' }.lookup('parameterized', 'parameters').get('BRANCH') == jobBranch
-    items.find { it.itemName == 'paramTest' }.lookup('parameterized', 'parameters').get('BRANCH') == globalBranch
+    items.find { it.itemName == 'paramTestOverride' }.lookupValue('parameterized', 'parameters').get('BRANCH') == jobBranch
+    items.find { it.itemName == 'paramTest' }.lookupValue('parameterized', 'parameters').get('BRANCH') == globalBranch
   }
 
   def "can embed groovy code for upstream dsl block in base component"() {

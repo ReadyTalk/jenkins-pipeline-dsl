@@ -29,6 +29,8 @@ class ContextProxy {
     throw new UnsupportedOperationException("No binding method set, context is readonly (property: '${name}')")
   }
 
+  private static unwrap = { Optional box -> box.orElse(null) }
+
   //Syntactic sugar helper for generating proxies
   static Closure<ProxyDelegate> generator(TypeRegistry registry) {
     return ContextProxy.metaClass.&invokeConstructor.curry(registry) >> { it.generate() }
@@ -41,7 +43,7 @@ class ContextProxy {
    */
   ProxyDelegate generate(String namespace = '', Closure getterLambda = null) {
     return new ProxyDelegate(
-            proxy: [get: getterLambda ?: getter.&lookup.curry(namespace),
+            proxy: [get: getterLambda ?: getter.&lookup.curry(namespace) >> unwrap,
                     set: setter.&bind.curry(namespace)] as PropertyProxy,
             fallback: { String name, PropertyProxy px ->
               if(name != null && registry.lookup(name) != null) {
@@ -125,7 +127,7 @@ class ProxyDelegate {
     if(args.size() == 1) {
       if(args.last() instanceof Closure) {
         Closure next = args.last()
-        next.delegate = this."${name}"
+        next.delegate = this.getProperty(name)
         next.resolveStrategy = Closure.DELEGATE_FIRST
         next.call()
         return

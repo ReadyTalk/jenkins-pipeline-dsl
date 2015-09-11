@@ -6,16 +6,19 @@ import com.readytalk.jenkins.model.ModelContext
 /**
  * The injection methods are monadic - i.e. they are chained together when run
  *
- * TODO: Figure out how to extend Groovy's compile time type checking to validate
- *       calls to AbstractComponentType, since those calls can normally only be
- *       resolved dynamically. We should be able to guarantee this statically, since
- *       the adapters are only designed to work as anonymous inner classes of components.
+ * NOTE: This is an abstraction for handling unusual cases and syntactic sugar.
+ *       It should not be used unless there's no other way to cleanly implement
+ *       the behavior using the normal methods and interfaces!
  */
 interface ComponentAdapter {
-  //Allows altering itemContext just prior to component execution (so after all postProcess steps)
+  //Alter context just prior to specific component execution (after all postProcess calls)
+  //Will *not* affect context provided to other components!
+  //PURPOSE: value has special representation within implementing component
   ModelContext injectContext(ModelContext itemContext)
 
   //Allows altering an item just prior to component postProcess call
+  //Affects context visible to *all* other components!
+  //PURPOSE: general override like postProcess, but more composable
   ItemSource injectItem(ItemSource item)
 }
 

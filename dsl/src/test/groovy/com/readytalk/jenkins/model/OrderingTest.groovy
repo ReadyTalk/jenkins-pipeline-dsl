@@ -43,8 +43,8 @@ class OrderingTest extends ModelSpecification {
     ModelPrettyPrinter.printItemList(jobs)
 
     then:
-    jobs.find { it.itemName == 'theJob' }.context.lookup('jobComponent','field') == 'componentFirst'
-    jobs.find { it.itemName == 'subJob' }.context.lookup('jobComponent','field') == 'stillComponentFirst'
+    jobs.find { it.itemName == 'theJob' }.context.lookup('jobComponent','field').get() == 'componentFirst'
+    jobs.find { it.itemName == 'subJob' }.context.lookup('jobComponent','field').get() == 'stillComponentFirst'
   }
 
   def "priority value respected when executing dsl blocks"() {

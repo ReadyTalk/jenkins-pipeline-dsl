@@ -28,7 +28,7 @@ class JobTypeTest extends ModelSpecification {
     registry.lookup('aComponent').fields.field.equals('defaultValue')
     list.find { ItemSource source ->
       source.itemName.equals('hello-world')
-    }.context.lookup('aComponent', 'field').equals('jobDefault')
+    }.context.lookup('aComponent', 'field').get() == 'jobDefault'
   }
 
   def "components can be dynamically added to jobs"() {
@@ -67,6 +67,6 @@ class JobTypeTest extends ModelSpecification {
     }.find { it.itemName == 'append-job' }
 
     then:
-    job.context.lookup('someComponent', 'field') == 'defaultValueAppended'
+    job.context.lookup('someComponent', 'field').get() == 'defaultValueAppended'
   }
 }
