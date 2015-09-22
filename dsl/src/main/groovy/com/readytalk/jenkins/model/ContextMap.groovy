@@ -91,6 +91,16 @@ class DefaultContext implements ContextLookup {
   TypeRegistry registry
 
   Optional lookup(String componentName, String field) {
-    return Optional.ofNullable(registry.lookup(componentName)?.fields?.get(field))
+    def fieldMap = registry.lookup(componentName)?.fields
+    if(fieldMap != null) {
+      def defaultValue = fieldMap.get(field)
+      if(defaultValue != null) {
+        return Optional.of(defaultValue)
+      } else {
+        throw new RuntimeException("Component ${componentName} field ${field} requires explicit value!")
+      }
+    } else {
+      return Optional.empty()
+    }
   }
 }
