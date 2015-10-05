@@ -31,7 +31,7 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath "com.readytalk.jenkins:plugin:0.7.6"
+    classpath "com.readytalk.jenkins:plugin:0.10.0"
   }
 }
 
@@ -63,6 +63,7 @@ Features:
 
 Requirements:
   * Gradle 2.1+
+  * Java 8 (may be relaxed to Java 7, but I'd rather encourage adoption of 8)
 
 Limitations:
   * Supports views in theory, but untested and unsupported by the component dsl

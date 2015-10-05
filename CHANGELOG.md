@@ -1,6 +1,17 @@
 #Changelog
 ----------
 
+* 0.10.0
+    - Refactored ContextMap to use Optional instead of null checking
+    - Now throws explicit error if field with required value left unset
+    - Context values are now immutable within the same scope by default
+    - Now locally merges PRs by default before building
+    - Fixed matrix job type to actually set job type as matrixJob
+    - Removed JobTypeOverride as it didn't work as intended
+    - Requires Java 8 due to Optional
+      This may get reverted if it causes too many compatibility issues,
+      and use an alternate implementation of Optional instead
+
 * 0.8.3
     - Added context to errors such as yaml or groovy file paths
     - Added "blankJob" type for jobs that shouldn't pre-apply git
@@ -9,10 +20,10 @@
 * 0.8.2
     - Added matrix job support (very minimal - drops down to netflix dsl for
       axes definition for now)
-    - Full fledged support for ComponentAdapters. This enables extracting out
+    - Better support for ComponentAdapters. This enables extracting out
       common logic from Components that usually ended up in the postProcess
-      block. For example, I have a JobTypeOverride adapter that can detect
-      conflicts between components trying to set incompatible job types
+      block. Like the postProcess block, they should be avoided if possible,
+      and are provided as an abstraction for syntactic sugar and special cases.
     - Pull request builds now build concurrently by default unless explicitly
       disabled in the parent scope
     - Allow setting includedRegions on the git component
