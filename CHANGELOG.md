@@ -1,7 +1,7 @@
 #Changelog
 ----------
 
-* 0.10.0
+* 0.10.1
     - Refactored ContextMap to use Optional instead of null checking
     - Now throws explicit error if field with required value left unset
     - Context values are now immutable within the same scope by default
