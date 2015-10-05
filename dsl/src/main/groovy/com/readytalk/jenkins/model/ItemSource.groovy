@@ -28,7 +28,6 @@ class ItemSource {
     this.proxyMaker = origin.proxyMaker
 
     if(copy) {
-      this.itemName = origin.itemName
       this.components = origin.components.asImmutable()
     } else {
       throw new UnsupportedOperationException("Multi-job post-processing with non-homogenous components not currently possible")
@@ -38,12 +37,8 @@ class ItemSource {
   def generateWith(DslDelegate delegateGenerator) {
     def item = delegateGenerator.create(this)
 
-    ComponentAdapter adapter = ClosureGlue.monadicFold(ComponentAdapter,
-            prioritizedComponents().collect { it.getTraits() }.flatten())
-
-    ContextLookup local = adapter.injectContext(itemContext).getContext()
-
     prioritizedComponents().each { AbstractComponentType component ->
+      ContextLookup local = component.composeAdapter().injectContext(itemContext).getContext()
       Closure config = (Closure)component.getDslConfig().clone()
       config.setDelegate(item)
       config.resolveStrategy = Closure.DELEGATE_FIRST

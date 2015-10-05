@@ -1,5 +1,6 @@
 package com.readytalk.jenkins.model.pipelines
 
+import com.readytalk.jenkins.model.ContextAlreadyBoundException
 import com.readytalk.jenkins.model.ItemSource
 import com.readytalk.jenkins.model.PipelineType
 import groovy.transform.InheritConstructors
@@ -20,7 +21,10 @@ class SequentialPipeline extends AbstractPipeline {
     return pipelineJobs.collectEntries { ItemSource item ->
       stageGraph.put("${stageCounter}", "${stageCounter + 1}")
       stageCounter += 1
-      item.itemName = "${project}-${item.itemName}"
+      try {
+        item.itemName = "${project}-${item.itemName}"
+      } catch(ContextAlreadyBoundException e) { /* force override */ }
+
       return ["${stageCounter}": [item]]
     }
   }

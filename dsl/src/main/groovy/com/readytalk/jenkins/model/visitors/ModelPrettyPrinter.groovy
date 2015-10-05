@@ -46,11 +46,21 @@ class ModelPrettyPrinter extends SymmetricVisitor {
         component.fields.each { k, v ->
           def value = source.lookupValue(component.name, k)
           String color = ''
+
+          def defaultValue = null
+          try {
+            defaultValue = source.lookupValue(component.getName(), k, source.defaults)
+          } catch(RuntimeException e) {
+            if(!e.message.contains('no default value')) {
+              throw(e)
+            }
+          }
+
           if(value == null) {
             color = 'bold,red'
           } else if(value == component.fields[k]) {
             color = 'faint,white'
-          } else if(value == source.lookupValue(component.getName(), k, source.defaults)) {
+          } else if(value == defaultValue) {
             color = 'faint,green'
           } else if(source.user.context.containsKey(k)) {
             color = 'bold,green'

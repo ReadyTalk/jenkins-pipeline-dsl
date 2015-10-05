@@ -3,6 +3,7 @@ package com.readytalk.jenkins.model.types
 import com.readytalk.jenkins.model.AbstractComponentType
 import com.readytalk.jenkins.model.Fixed
 import com.readytalk.jenkins.model.ItemSource
+import com.readytalk.util.ClosureGlue
 
 /**
  * Pull Request component for Atlassian Stash
@@ -22,6 +23,9 @@ class PullRequestComponent extends AbstractComponentType {
           prefix: '',
           suffix: '-pr-builder',
           notifications: false,
+          mergeTo: 'master',
+          //TODO: How can we support this?
+          //overrides: {}, //SPECIAL
   ]
 
   Closure dslConfig = { vars ->
@@ -73,6 +77,12 @@ class PullRequestComponent extends AbstractComponentType {
       //Disable timer for pull request jobs
       common.runSchedule = ''
       triggerDownstream.jobs = ''
+
+      //Merge to specified branch before building, preserve any existing git customizations
+      if(mergeTo) {
+        String mergeTarget = mergeTo
+        git.dsl = ClosureGlue.combinePreservingDelegate(git.dsl, { mergeOptions('origin', mergeTarget) })
+      }
     }
 
     prJob.defaults.context.putAll(prJob.user.context)

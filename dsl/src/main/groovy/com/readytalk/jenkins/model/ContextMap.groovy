@@ -1,7 +1,8 @@
 package com.readytalk.jenkins.model
 
 import com.readytalk.util.ClosureGlue
-import com.readytalk.util.StringUtils
+import groovy.transform.Canonical
+import groovy.transform.Immutable
 import groovy.transform.TupleConstructor
 
 interface ContextLookup {
@@ -9,7 +10,30 @@ interface ContextLookup {
 }
 
 interface ContextBind {
-  def bind(String namespace, String field, value)
+  void bind(String namespace, String field, value) throws ContextAlreadyBoundException
+}
+
+/**
+ * In general, attempting to set a value twice in the same context indicates some kind of conflict,
+ * so it's an error by default. In controlled contexts, it may be acceptable or desirable and this
+ * can be caught and ignored. The point is that it's an intentional choice.
+ */
+class ContextAlreadyBoundException extends Exception {
+  final ContextMap context
+  final String componentName
+  final String fieldName
+  final def value
+
+  ContextAlreadyBoundException(ContextMap context, String componentName, String fieldName, value) {
+    super("Component fields should only be set once in a given scope!\n" +
+            "  ${componentName}.${fieldName} already set as '" +
+            context.lookup(componentName, fieldName).get().toString() +
+            "', attempted to set as '${value}'")
+    this.context = context
+    this.componentName = componentName
+    this.fieldName = fieldName
+    this.value = value
+  }
 }
 
 /**
@@ -43,11 +67,19 @@ class ContextMap implements ContextLookup, ContextBind {
   }
 
   void bindAppend(ContextLookup withScope, String namespace, String field, value) {
-    this.bind(namespace, field, (withScope.lookup(namespace, field).orElse([:])) + value)
+    try {
+      this.bind(namespace, field, (withScope.lookup(namespace, field).orElse([:])) + value)
+    } catch(ContextAlreadyBoundException e) {
+      //Ignore - we're extending (not replacing) an existing value
+    }
   }
 
   void bindPrepend(ContextLookup withScope, String namespace, String field, value) {
-    this.bind(namespace, field, value + (withScope.lookup(namespace, field).orElse([:])))
+    try {
+      this.bind(namespace, field, value + (withScope.lookup(namespace, field).orElse([:])))
+    } catch(ContextAlreadyBoundException e) {
+      //Ignore - we're extending (not replacing) an existing value
+    }
   }
 
   //Check this context for value, then check parent context if possible
@@ -71,12 +103,27 @@ class ContextMap implements ContextLookup, ContextBind {
 
   //TODO: Verify that bound values actually correspond to real component parameters
   //      Would help catch typos and people doing things they shouldn't that won't show up in the pretty printed output
-  def bind(String componentName, String key, value) {
-    //TODO: should we support blank scope? i.e. named values with no namespace / component name
-    if(componentName == null) return bind('', key, value)
-    if(!context.containsKey(componentName)) { context.put(componentName, [:]) }
-    context.get(componentName).put(key, value)
-    return this
+  void bind(String componentName, String key, value) {
+    if(value == null) {
+      throw new RuntimeException("Attempted to set ${componentName}.${key} to null value, which is not allowed!")
+    }
+    if(componentName == null) {
+      //TODO: should we support blank scope? i.e. named values with no namespace / component name
+      bind('', key, value)
+    } else {
+      if (!context.containsKey(componentName)) {
+        context.put(componentName, [:])
+      }
+      def componentContext = context.get(componentName)
+      if(componentContext.containsKey(key)) {
+        //This can be caught and ignored in controlled contexts, but normally it's an error
+        def err = new ContextAlreadyBoundException(this, componentName, key, value)
+        componentContext.put(key, value)
+        throw err
+      } else {
+        componentContext.put(key, value)
+      }
+    }
   }
 
   ContextMap createChildContext() {
@@ -91,15 +138,16 @@ class DefaultContext implements ContextLookup {
   TypeRegistry registry
 
   Optional lookup(String componentName, String field) {
-    def fieldMap = registry.lookup(componentName)?.fields
-    if(fieldMap != null) {
+    Map fieldMap = registry.lookup(componentName)?.fields
+    if(fieldMap != null && fieldMap.containsKey(field)) {
       def defaultValue = fieldMap.get(field)
       if(defaultValue != null) {
         return Optional.of(defaultValue)
       } else {
-        throw new RuntimeException("Component ${componentName} field ${field} requires explicit value!")
+        throw new RuntimeException("Field '${field}' from component '${componentName}' must be set explicitly (has no default value)!")
       }
     } else {
+      //Lookup failed - either component or field doesn't exist
       return Optional.empty()
     }
   }

@@ -9,8 +9,8 @@ class ContextTest extends ModelSpecification {
     root.bind('cBeta', 'field', 'betaRootValue')
   }
 
-  def createProxy() {
-    ProxyDelegate proxy = new ContextProxy(registry: registry, getter: root, setter: root).generate()
+  def createProxy(ContextMap context = root) {
+    ProxyDelegate proxy = new ContextProxy(registry: registry, getter: context, setter: context).generate()
     //Ensure registry is filled out
     model {
       cAlpha { field 'alphaValue' }
@@ -31,7 +31,9 @@ class ContextTest extends ModelSpecification {
 
   def "ContextMap lookup uses most specific value"() {
     when:
-    def child = root.createChildContext().bind('cBeta', 'field', 'childValue')
+    ContextMap child = root.createChildContext()
+    child.bind('cBeta', 'field', 'childValue')
+
     then:
     child.lookup('cBeta','field').get() == 'childValue'
   }
@@ -51,7 +53,8 @@ class ContextTest extends ModelSpecification {
 
   def "context binding can be proxied"() {
     when:
-    def proxy = createProxy()
+    //Use child context as binding is immutable by default
+    def proxy = createProxy(root.createChildContext())
     def betaProxy = proxy.cBeta
     proxy.cAlpha.field = 'newAlphaValue'
     def block = {

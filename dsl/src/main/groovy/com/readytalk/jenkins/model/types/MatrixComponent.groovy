@@ -2,19 +2,12 @@ package com.readytalk.jenkins.model.types
 
 import com.readytalk.jenkins.model.AbstractComponentType
 import com.readytalk.jenkins.model.Fixed
-import com.readytalk.jenkins.model.meta.ComponentAdapter
-import com.readytalk.jenkins.model.meta.JobTypeOverride
+import com.readytalk.jenkins.model.ItemSource
 import com.readytalk.util.ClosureGlue
 
 @Fixed
 class MatrixComponent extends AbstractComponentType {
   String name = 'matrix'
-
-  List<ComponentAdapter> traits = [
-          new JobTypeOverride() {
-            String jobType = 'matrixJob'
-          }
-  ]
 
   //TODO: This component should probably be expanded more
   Map<String,?> fields = [
@@ -22,7 +15,7 @@ class MatrixComponent extends AbstractComponentType {
           combinationFilter: ''
   ]
 
-  Closure dsl = { vars ->
+  Closure dslConfig = { vars ->
     //TODO: We should find a way to abstract the "dsl-string versus map-syntax" pattern out
     if(vars.axes instanceof String) {
       axes(ClosureGlue.asClosure(vars.axes))
@@ -35,5 +28,10 @@ class MatrixComponent extends AbstractComponentType {
     if(vars.combinationFilter != '') {
       combinationFilter(vars.combinationFilter)
     }
+  }
+
+  ItemSource[] postProcess(ItemSource item) {
+    item.user.bind('base', 'type', 'matrixJob')
+    return [item]
   }
 }

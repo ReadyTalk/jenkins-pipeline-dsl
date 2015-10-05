@@ -1,6 +1,7 @@
 package com.readytalk.jenkins.model.pipelines
 
 import com.readytalk.jenkins.model.AbstractComponentType
+import com.readytalk.jenkins.model.ContextAlreadyBoundException
 import com.readytalk.jenkins.model.ItemSource
 import com.readytalk.jenkins.model.PipelineType
 import com.readytalk.jenkins.model.ProxyDelegate
@@ -44,7 +45,11 @@ abstract class AbstractPipeline {
     Map<String,List<ItemSource>> byStage = [:]
     jobs.each { job ->
       String stage = job.itemName
-      job.itemName = "${project}-${stage}"
+
+      try {
+        job.itemName = "${project}-${stage}"
+      } catch(ContextAlreadyBoundException e) { /* force override */ }
+
       if(byStage.get(stage) == null) byStage.put(stage,[])
       byStage.get(stage).add(job)
     }

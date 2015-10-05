@@ -21,7 +21,6 @@ abstract class ExternalizedFields extends AbstractComponentAdapter {
    * TODO: passing through parameters, which will override the default setting that's been externalized
    * Partial solution: on flows, graph out parameters to attempt detection of potential shadowing effects
    *   Tricky... normally the shadowing is what we want to happen.
-   *
    */
   abstract Map<String,String> getExternalizedFields()
 

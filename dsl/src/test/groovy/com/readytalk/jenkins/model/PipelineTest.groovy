@@ -147,13 +147,14 @@ class PipelineTest extends ModelSpecification {
     }
   }
 
-  def "injects clone workspace configuration"() {
+  @Unroll
+  def "injects clone workspace configuration for #pipelineType"() {
     when:
     registry.add(CloneWorkspaceComponent.instance)
     registry.add(GitComponent.instance)
 
     def jobs = eval {
-      pipeline('clone') {
+      "${pipelineType}"('clone') {
         build(type: 'fakeJob')
         deploy(type: 'fakeJob')
         promote(type: 'fakeJob') {
@@ -167,9 +168,12 @@ class PipelineTest extends ModelSpecification {
 
     then:
     registry.lookup('cloneWorkspace') == CloneWorkspaceComponent.instance
-    jobs.find { it.itemName == 'clone-build' }.lookup('triggerDownstream', 'copyWorkspace') == true
-    jobs.find { it.itemName == 'clone-deploy' }.lookup('triggerDownstream', 'copyWorkspace') == false
+    jobs.find { it.itemName == 'clone-build' }.lookupValue('triggerDownstream', 'copyWorkspace') == true
+    jobs.find { it.itemName == 'clone-deploy' }.lookupValue('triggerDownstream', 'copyWorkspace') == false
     downstream.components.contains(CloneWorkspaceComponent.instance)
     !downstream.components.contains(GitComponent.instance)
+
+    where:
+    pipelineType << ['pipeline', 'sequential']
   }
 }

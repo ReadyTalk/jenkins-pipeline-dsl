@@ -1,6 +1,7 @@
 package com.readytalk.jenkins.model.meta
 
 import com.readytalk.jenkins.model.ContextMap
+import com.readytalk.jenkins.model.ContextAlreadyBoundException
 import com.readytalk.jenkins.model.ItemSource
 
 abstract class AggregateField extends AbstractComponentAdapter {
@@ -28,7 +29,11 @@ abstract class AggregateField extends AbstractComponentAdapter {
       def userMap = aggregate(item.user)
 
       def localScope = item.lookupValue(componentName, field) ?: [:]
-      item.user.bind(componentName, field, defaultsMap + userMap + localScope)
+      try {
+        item.user.bind(componentName, field, defaultsMap + userMap + localScope)
+      } catch(ContextAlreadyBoundException e) {
+        //Ignore - the point of this adapter specifically requires we bend the scoping rules a bit
+      }
     }
     return item
   }

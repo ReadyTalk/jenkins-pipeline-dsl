@@ -1,5 +1,6 @@
 package com.readytalk.jenkins.model
 
+import com.readytalk.jenkins.model.meta.NullAdapter
 import com.readytalk.jenkins.model.pipelines.AbstractPipeline
 import com.readytalk.jenkins.model.meta.ComponentAdapter
 import com.readytalk.util.ClosureGlue
@@ -57,7 +58,7 @@ abstract class AbstractComponentType implements NamedElementType {
   int getPriority() { return 50 }
 
   //TODO: Rename this to adapter instead of traits, to avoid confusion with Groovy's native traits
-  List<ComponentAdapter> traits = []
+  List<ComponentAdapter> traits = [NullAdapter.instance]
 
   //Would be nice to generate this statically, but the performance hit is negligible anyways
   ComponentAdapter composeAdapter() {
