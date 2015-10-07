@@ -79,9 +79,21 @@ class PullRequestComponent extends AbstractComponentType {
       triggerDownstream.jobs = ''
 
       //Merge to specified branch before building, preserve any existing git customizations
+      //NOTE: GIT_BRANCH will report as the target branch instead of the pr if this is enabled!
       if(mergeTo) {
         String mergeTarget = mergeTo
-        git.dsl = ClosureGlue.combinePreservingDelegate(git.dsl, { mergeOptions('origin', mergeTarget) })
+        git.dsl = ClosureGlue.combinePreservingDelegate(git.dsl, {
+          mergeOptions('origin', mergeTarget)
+          localBranch("pr-\${BUILD_NUMBER}-to-${mergeTarget}")
+        })
+        base.dsl = ClosureGlue.combinePreservingDelegate(base.dsl, {
+          configure { Node node ->
+            node / 'scm' / 'extensions' / 'hudson.plugins.git.extensions.impl.ChangelogToBranch' / 'options' << {
+              compareRemote('origin')
+              compareTarget(mergeTarget)
+            }
+          }
+        })
       }
     }
 

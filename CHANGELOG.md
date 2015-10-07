@@ -1,6 +1,10 @@
 #Changelog
 ----------
 
+* 0.10.2
+    - Fix polling for pull request support using mergeTo
+    - Use direct refspec for Stash pull requests instead of remapping
+
 * 0.10.1
     - Refactored ContextMap to use Optional instead of null checking
     - Now throws explicit error if field with required value left unset
