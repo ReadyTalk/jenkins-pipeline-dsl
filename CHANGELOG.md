@@ -1,9 +1,10 @@
 #Changelog
 ----------
 
-* 0.10.2
+* 0.10.3
     - Fix polling for pull request support using mergeTo
     - Use direct refspec for Stash pull requests instead of remapping
+    - Include target branch in refspec to ensure merge is up-to-date
 
 * 0.10.1
     - Refactored ContextMap to use Optional instead of null checking

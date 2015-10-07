@@ -63,7 +63,7 @@ class PullRequestComponent extends AbstractComponentType {
         switch (git.provider) {
           case 'stash':
             git.branches = 'origin/pull-requests/*/from'
-            git.refspec = stashRefspec
+            git.refspec = stashRefspec + (mergeTo ?: '' : " refs/heads/${mergeTo}:refs/remotes/origin/${mergeTo}"
             break
           case 'github':
             git.refspec = githubRefspec
