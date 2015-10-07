@@ -13,7 +13,7 @@ import com.readytalk.util.ClosureGlue
 
 @Fixed
 class PullRequestComponent extends AbstractComponentType {
-  final static String stashRefspec = '+refs/pull-requests/*/from:refs/remotes/origin/pr/*'
+  final static String stashRefspec = '+refs/pull-requests/*/from:refs/remotes/origin/pull-requests/*/from'
   final static String githubRefspec = '+refs/pull/*:refs/remotes/origin/pr/*'
 
   String name = 'pullRequest'
@@ -62,7 +62,7 @@ class PullRequestComponent extends AbstractComponentType {
       if(prJob.components.contains(GitComponent.instance)) {
         switch (git.provider) {
           case 'stash':
-            git.branches = 'origin/pr/**'
+            git.branches = 'origin/pull-requests/*/from'
             git.refspec = stashRefspec
             break
           case 'github':
