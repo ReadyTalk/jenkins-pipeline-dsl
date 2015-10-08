@@ -11,21 +11,21 @@ import groovy.transform.TypeChecked
 class ItemSource {
   //TODO: Keep context confined to ItemSource (remove from ModelElement classes)
   //TODO: We're hitting conflicts between vanilla and injected context - should we always inject context?
+  final TypeRegistry registry
   @Delegate ModelContext itemContext
   Set<AbstractComponentType> components
-  Closure<ContextProxy> proxyMaker
 
   ItemSource(TypeRegistry registry, Set<String> components, ModelContext itemContext) {
+    this.registry = registry
     this.components = components.collect{ String componentName -> registry.lookup(componentName) }.toSet()
     this.itemContext = itemContext
-    this.proxyMaker = ContextProxy.metaClass.&invokeConstructor.curry(registry)
   }
 
   //This constructor *must* be used when generating multiple jobs using post-processing components
   //Otherwise you could end up with undefined ordering problems
   ItemSource(ItemSource origin, boolean copy = true) {
     this.itemContext = origin.itemContext.childContext()
-    this.proxyMaker = origin.proxyMaker
+    this.registry = origin.registry
 
     if(copy) {
       this.components = origin.components.asImmutable()
@@ -42,7 +42,7 @@ class ItemSource {
       Closure config = (Closure)component.getDslConfig().clone()
       config.setDelegate(item)
       config.resolveStrategy = Closure.DELEGATE_FIRST
-      config.call(proxyMaker(local).generate(component.getName()))
+      config.call(proxyOf(local).generate(component.getName()))
     }
 
     return item
@@ -61,7 +61,11 @@ class ItemSource {
   }
 
   def lookupValue(String namespace, String field, ContextLookup lookupContext = context) {
-    return proxyMaker(lookupContext).generate(namespace).getProperty(field)
+    return proxyOf(lookupContext).generate(namespace).getProperty(field)
+  }
+
+  ContextProxy proxyOf(...args) {
+    return ContextProxy.metaClass.&invokeConstructor.curry(registry).call(args)
   }
 }
 

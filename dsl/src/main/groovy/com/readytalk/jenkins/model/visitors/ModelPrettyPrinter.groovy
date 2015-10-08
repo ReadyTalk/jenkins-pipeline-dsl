@@ -38,8 +38,6 @@ class ModelPrettyPrinter extends SymmetricVisitor {
   //TODO: Disable color codes if terminal doesn't support it - built-in jansi detector doesn't work
   static void printItemList(itemList) {
     itemList.each { ItemSource source ->
-      def context = source.proxyMaker(source.context)
-      def defaults = source.proxyMaker(source.defaults)
       println AnsiRenderer.render("@|blue Item|@ @|cyan '${source.itemName}'|@:")
       source.prioritizedComponents().each { component ->
         println AnsiRenderer.render("    @|white ${component.name}|@:")

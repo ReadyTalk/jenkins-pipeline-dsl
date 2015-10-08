@@ -1,6 +1,13 @@
 #Changelog
 ----------
 
+* 0.11.0
+    - Add extEmail component for ExtendedEmailPlugin
+      Add blockOn component for locks and build blocking config
+      Add overrides map for pullRequest component
+        Note - overrides block is experimental
+        Ideally, it should be an actual chunk of parsed dsl
+
 * 0.10.3
     - Fix polling for pull request support using mergeTo
     - Use direct refspec for Stash pull requests instead of remapping

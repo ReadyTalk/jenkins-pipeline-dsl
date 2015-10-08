@@ -1,31 +1,34 @@
 package com.readytalk.jenkins.model.types
 
 import com.readytalk.jenkins.model.AbstractComponentType
+import com.readytalk.jenkins.model.ComponentField
 import com.readytalk.jenkins.model.Fixed
+import com.readytalk.jenkins.model.ImplicitFields
 import com.readytalk.jenkins.model.ItemSource
 import com.readytalk.util.ClosureGlue
 
 /**
  * Pull Request component for Atlassian Stash
  *
- * Clones job configuration and attempts to disable things like
+ * Clones job configuration and attempts to disable things like downstream triggers,
+ * extraneous notifications, etc.
  */
 
 @Fixed
-class PullRequestComponent extends AbstractComponentType {
+class PullRequestComponent extends AbstractComponentType implements ImplicitFields {
   final static String stashRefspec = '+refs/pull-requests/*/from:refs/remotes/origin/pull-requests/*/from'
   final static String githubRefspec = '+refs/pull/*:refs/remotes/origin/pr/*'
 
   String name = 'pullRequest'
 
+  @ComponentField String prefix = ''
+  @ComponentField String suffix = '-pr-builder'
+  @ComponentField String mergeTo = 'master'
+  @ComponentField Map<String,Map<String,?>> overrides = [:]
+
   Map<String,?> fields = [
           enabled: true,
-          prefix: '',
-          suffix: '-pr-builder',
-          notifications: false,
-          mergeTo: 'master',
-          //TODO: How can we support this?
-          //overrides: {}, //SPECIAL
+          notifications: false
   ]
 
   Closure dslConfig = { vars ->
@@ -42,11 +45,11 @@ class PullRequestComponent extends AbstractComponentType {
 
     //NOTE: Components generating multiple jobs like this MUST use the ItemSource(ItemSource,Boolean) constructor
     ItemSource prJob = new ItemSource(original)
-    def ogProxy = original.proxyMaker(original.context).generate('git')
+    def ogProxy = original.proxyOf(original.context).generate('git')
 
     //Overriding at 'user' scope because this job is "hidden" from the user DSL (added post-evaluation)
     //i.e. users wouldn't be able to override things in this scope anyways
-    prJob.proxyMaker(prJob.context, prJob.user).generate(name).with {
+    prJob.proxyOf(prJob.context, prJob.user).generate(name).with {
       prJob.itemName = "${prefix}${original.itemName}${suffix}"
       if(!notifications) {
         ownership.hipchatRooms = ''
@@ -57,7 +60,7 @@ class PullRequestComponent extends AbstractComponentType {
       Boolean concurrent = original.user.lookup('common', 'concurrentBuild')
       common.concurrentBuild = concurrent != null ? concurrent : true
 
-      //expand template
+      //We only support git and stash/github for now
       git.repo = original.lookupValue('git','repo')
       if(prJob.components.contains(GitComponent.instance)) {
         switch (git.provider) {
@@ -71,10 +74,14 @@ class PullRequestComponent extends AbstractComponentType {
             break
         }
       }
+
+      //The PR job shouldn't recursively copy itself
       enabled = false
+
       common.description = common.description +
               """\n\nThis job is a pull-request only clone of [${original.itemName}](${base.jenkins}/job/${original.itemName})"""
-      //Disable timer for pull request jobs
+
+      //Disable timer and downstream triggers for pull request jobs
       common.runSchedule = ''
       triggerDownstream.jobs = ''
 
@@ -98,6 +105,14 @@ class PullRequestComponent extends AbstractComponentType {
     }
 
     prJob.defaults.context.putAll(prJob.user.context)
+
+    //Clumsy, but at least it allows overriding values in the pr job
+    def overrides = original.lookupValue(this.name, 'overrides')
+    overrides.each { String namespace, fields ->
+      fields.each { String key, value ->
+        prJob.user.bind(namespace, key, value)
+      }
+    }
 
     return [original, prJob]
   }

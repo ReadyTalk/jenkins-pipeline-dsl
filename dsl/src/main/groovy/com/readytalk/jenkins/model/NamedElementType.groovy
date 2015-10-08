@@ -126,17 +126,19 @@ class JobType extends AbstractItemType {
 @Target(ElementType.FIELD)
 public @interface ComponentField {}
 
-//Allows declaring component parameters as class fields instead of a map literal
+//Allows declaring component parameters as class fields, not just a map
+//This enables annotating component parameters with actual types
 //@SelfType(AbstractComponentType) //TODO: Requires Groovy 2.4.x+
 trait ImplicitFields {
   Map<String,?> getFields() {
-    Map<String,?> map = this.getClass().getDeclaredFields().collectEntries { Field field ->
+    Map<String,?> map = this.fields
+    map.putAll(this.getClass().getDeclaredFields().collectEntries { Field field ->
       if(ComponentField in field.declaredAnnotations*.annotationType()) {
         [(field.name): this.getProperty(field.name)]
       } else {
         []
       }
-    }
+    })
     return map
   }
 

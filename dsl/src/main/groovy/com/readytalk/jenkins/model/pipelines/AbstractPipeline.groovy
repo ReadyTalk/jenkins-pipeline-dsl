@@ -100,7 +100,7 @@ abstract class AbstractPipeline {
   //This method is expected to be idempotent
   protected ProxyDelegate injectComponent(ItemSource job, AbstractComponentType component) {
     job.components.add(component)
-    return job.proxyMaker(job.context, job.defaults).generate(component.getName())
+    return job.proxyOf(job.context, job.defaults).generate(component.getName())
   }
 
   protected def findJobs(Closure pattern) {
