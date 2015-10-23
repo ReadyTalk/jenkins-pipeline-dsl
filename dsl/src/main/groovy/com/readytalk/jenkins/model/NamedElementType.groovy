@@ -135,7 +135,7 @@ abstract class AnnotatedComponentType extends AbstractComponentType {
       if(ComponentField in field.declaredAnnotations*.annotationType()) {
         [(field.name): this.getProperty(field.name)]
       } else {
-        []
+        [:]
       }
     })
     return map

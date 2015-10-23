@@ -1,9 +1,38 @@
 package com.readytalk.jenkins.model
 
 import com.readytalk.jenkins.model.types.CommonComponent
+import com.readytalk.jenkins.model.types.ExtendedEmailComponent
 import com.readytalk.jenkins.model.types.MatrixComponent
+import com.readytalk.jenkins.model.visitors.ModelPrettyPrinter
 
 class ComponentTest extends ModelSpecification {
+  def "Extended email can be applied without error"() {
+    setup:
+    types {
+      add ExtendedEmailComponent.instance
+    }
+
+    when:
+    def jobConfig = """
+- fauxJob:
+    name: jerb
+    ciEmail:
+      recipients: fake@fake.test
+      options:
+        defaultContent: hello world
+      triggers:
+        - triggerName: FirstFailure
+          recipientList: faux@fake.test
+"""
+    def job = generate(YamlParser.parse(jobConfig)).find { it.name == 'jerb' }.getNode()
+
+    def extEmail = job.publishers.'hudson.plugins.emailext.ExtendedEmailPublisher'
+
+    then:
+    extEmail.recipientList[0].value() == 'fake@fake.test'
+    extEmail.configuredTriggers.'hudson.plugins.emailext.plugins.trigger.FirstFailureTrigger'.email.recipientList[0].value() == 'faux@fake.test'
+  }
+
   def "Description field aggregates correctly"() {
     when:
     types {
@@ -87,5 +116,6 @@ class ComponentTest extends ModelSpecification {
     then:
     fieldMap.exampleField == 'hello'
     fieldMap.listExample == ['one', 'two', 'three']
+    !fieldMap.keySet().contains(null)
   }
 }

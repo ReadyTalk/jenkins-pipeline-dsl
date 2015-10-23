@@ -65,10 +65,19 @@ Suggestion: static PipelineType type = new PipelineType(NAME, ${type.getName()}.
   }
 
   def merge(TypeRegistryMap typeMap) {
-    types.putAll(typeMap.types)
+    typeMap.types.values().each { NamedElementType type ->
+      add(type)
+    }
   }
 
   def add(NamedElementType type) {
+    if(type == null || type.getName() == null) {
+      throw new IllegalStateException("Tried to add null type to TypeRegistry")
+    } else if(type instanceof AbstractComponentType &&
+              (type.getFields() == null || type.getFields().containsKey(null))) {
+      throw new IllegalStateException("Tried to add component '${type.getName()}' with null field id!\n" +
+              "Fields: ${type.getFields()}")
+    }
     String typeName = type.getName()
     types.put(typeName, type)
   }
