@@ -1,6 +1,7 @@
 package com.readytalk.util
 
 import groovy.text.GStringTemplateEngine
+import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation
 
 /**
  * String manipulation utilities
@@ -8,12 +9,19 @@ import groovy.text.GStringTemplateEngine
 class StringUtils {
   //Guarantee input as list, splitting if needed
   static List<String> asList(value, String delimiter = ' ') {
-    if(value instanceof String) {
-      return !value.equals('') ? value.split(delimiter) : []
-    } else if(isStringList(value)) {
-      return value
-    } else {
-      throw new UnsupportedOperationException("Can't convert from type ${value.getClass()} to list.\n${value}")
+    switch(value) {
+      case Iterable:
+        if (isStringList(value)) {
+          return value
+        } else {
+          throw new UnsupportedOperationException("Can't convert from type ${value.getClass()} to list.\n${value}")
+        }
+        return value
+      case String:
+        return !value.equals('') ? value.split(delimiter) : []
+      default:
+        println "WARNING: attempting to autobox non-list type ${value.class.name} as list!"
+        return DefaultTypeTransformation.asCollection(value)
     }
   }
 

@@ -3,10 +3,12 @@
 
 * 0.11.0
     - Add extEmail component for ExtendedEmailPlugin
-      Add blockOn component for locks and build blocking config
-      Add overrides map for pullRequest component
+    - Add blockOn component for locks and build blocking config
+    - Add overrides map for pullRequest component
         Note - overrides block is experimental
         Ideally, it should be an actual chunk of parsed dsl
+    - Aggregate description field by default
+    - Minor cleanup and refactoring
 
 * 0.10.3
     - Fix polling for pull request support using mergeTo

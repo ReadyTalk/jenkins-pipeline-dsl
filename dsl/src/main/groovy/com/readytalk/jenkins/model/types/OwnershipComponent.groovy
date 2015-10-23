@@ -31,7 +31,7 @@ class OwnershipComponent extends AbstractComponentType {
         }
       }
       if(vars.email) {
-        mailer(vars.email, true, true)
+        mailer(StringUtils.asString(vars.email,','), true, true)
       }
     }
   }

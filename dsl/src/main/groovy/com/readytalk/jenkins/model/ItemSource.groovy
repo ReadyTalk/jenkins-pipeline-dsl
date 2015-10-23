@@ -60,12 +60,17 @@ class ItemSource {
     user.bind('base','name',name)
   }
 
+  //Includes template expansion, but not injectContext() overrides
   def lookupValue(String namespace, String field, ContextLookup lookupContext = context) {
     return proxyOf(lookupContext).generate(namespace).getProperty(field)
   }
 
   ContextProxy proxyOf(...args) {
     return ContextProxy.metaClass.&invokeConstructor.curry(registry).call(args)
+  }
+
+  ContextProxy getProxy() {
+    return proxyOf(defaults, context)
   }
 }
 

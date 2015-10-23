@@ -3,7 +3,7 @@ package com.readytalk.jenkins.model.types
 import com.readytalk.jenkins.model.AbstractComponentType
 import com.readytalk.jenkins.model.ComponentField
 import com.readytalk.jenkins.model.Fixed
-import com.readytalk.jenkins.model.ImplicitFields
+import com.readytalk.jenkins.model.AnnotatedComponentType
 import com.readytalk.jenkins.model.ItemSource
 import com.readytalk.util.ClosureGlue
 
@@ -15,20 +15,19 @@ import com.readytalk.util.ClosureGlue
  */
 
 @Fixed
-class PullRequestComponent extends AbstractComponentType implements ImplicitFields {
+class PullRequestComponent extends AbstractComponentType {
   final static String stashRefspec = '+refs/pull-requests/*/from:refs/remotes/origin/pull-requests/*/from'
   final static String githubRefspec = '+refs/pull/*:refs/remotes/origin/pr/*'
 
   String name = 'pullRequest'
 
-  @ComponentField String prefix = ''
-  @ComponentField String suffix = '-pr-builder'
-  @ComponentField String mergeTo = 'master'
-  @ComponentField Map<String,Map<String,?>> overrides = [:]
-
   Map<String,?> fields = [
           enabled: true,
-          notifications: false
+          notifications: false,
+          prefix: '',
+          suffix: '-pr-builder',
+          mergeTo: 'master',
+          overrides: [:] as Map<String,Map<String,?>>,
   ]
 
   Closure dslConfig = { vars ->
@@ -45,7 +44,6 @@ class PullRequestComponent extends AbstractComponentType implements ImplicitFiel
 
     //NOTE: Components generating multiple jobs like this MUST use the ItemSource(ItemSource,Boolean) constructor
     ItemSource prJob = new ItemSource(original)
-    def ogProxy = original.proxyOf(original.context).generate('git')
 
     //Overriding at 'user' scope because this job is "hidden" from the user DSL (added post-evaluation)
     //i.e. users wouldn't be able to override things in this scope anyways
@@ -78,8 +76,9 @@ class PullRequestComponent extends AbstractComponentType implements ImplicitFiel
       //The PR job shouldn't recursively copy itself
       enabled = false
 
-      common.description = common.description +
-              """\n\nThis job is a pull-request only clone of [${original.itemName}](${base.jenkins}/job/${original.itemName})"""
+      common.description = "This job is a pull-request only clone of " +
+              "[${original.itemName}](${base.jenkins}/job/${original.itemName})\n" +
+              common.description
 
       //Disable timer and downstream triggers for pull request jobs
       common.runSchedule = ''

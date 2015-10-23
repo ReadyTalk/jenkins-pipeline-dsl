@@ -3,10 +3,10 @@ package com.readytalk.jenkins.model.types
 import com.readytalk.jenkins.model.AbstractComponentType
 import com.readytalk.jenkins.model.ComponentField
 import com.readytalk.jenkins.model.Fixed
-import com.readytalk.jenkins.model.ImplicitFields
+import com.readytalk.jenkins.model.AnnotatedComponentType
 
 @Fixed
-class ExtendedEmailComponent extends AbstractComponentType implements ImplicitFields {
+class ExtendedEmailComponent extends AnnotatedComponentType {
   //TODO: Should probably rename this
   String name = 'ciEmail'
 
@@ -18,7 +18,7 @@ class ExtendedEmailComponent extends AbstractComponentType implements ImplicitFi
   @ComponentField Map triggers = [:]
   @ComponentField Map triggerDefaults = [
           subject: '$PROJECT_DEFAULT_SUBJECT',
-          body: '$PROJECT_DEFAULT_BODY',
+          body: '$PROJECT_DEFAULT_CONTENT',
           sendToDevelopers: true,
           sendToRecipientList: true,
           contentType: 'project',

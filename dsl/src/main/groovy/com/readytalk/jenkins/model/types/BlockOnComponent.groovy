@@ -2,6 +2,7 @@ package com.readytalk.jenkins.model.types
 
 import com.readytalk.jenkins.model.AbstractComponentType
 import com.readytalk.jenkins.model.Fixed
+import com.readytalk.util.StringUtils
 
 @Fixed
 class BlockOnComponent extends AbstractComponentType {
@@ -17,10 +18,10 @@ class BlockOnComponent extends AbstractComponentType {
   ]
 
   Closure dslConfig = { vars ->
-    vars.jobRegex && blockOn(vars.jobRegex)
+    vars.jobRegex && blockOn(StringUtils.asString(vars.jobRegex,'\n'))
     vars.downstream && blockOnDownstreamProjects()
     vars.upstream && blockOnUpstreamProjects()
-    def lockList = vars.locks instanceof List ? vars.locks : vars.locks.split(',')
+    def lockList = StringUtils.asList(vars.locks,',')
     if(lockList.size() > 0) {
       configure { node ->
         def lockBlock = node / 'buildWrappers' / 'hudson.plugins.locksandlatches.LockWrapper' / 'locks'

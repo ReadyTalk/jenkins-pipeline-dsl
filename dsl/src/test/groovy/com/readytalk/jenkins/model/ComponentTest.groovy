@@ -1,14 +1,31 @@
 package com.readytalk.jenkins.model
 
-import com.readytalk.jenkins.model.types.GitComponent
+import com.readytalk.jenkins.model.types.CommonComponent
 import com.readytalk.jenkins.model.types.MatrixComponent
-import com.readytalk.jenkins.model.types.OwnershipComponent
-import com.readytalk.jenkins.model.types.ParameterizedComponent
-import com.readytalk.jenkins.model.types.PullRequestComponent
-import com.readytalk.jenkins.model.types.TriggerDownstreamComponent
-import spock.lang.Ignore
 
 class ComponentTest extends ModelSpecification {
+  def "Description field aggregates correctly"() {
+    when:
+    types {
+      add CommonComponent.instance
+    }
+    def job = eval {
+      common {
+        description = 'outer'
+      }
+      basicJob('jerb') {
+        common {
+          description = 'inner'
+        }
+      }
+    }.find { it.itemName == 'jerb' }
+    String desc = job.lookupValue('common', 'description')
+
+    then:
+    desc.contains('outer')
+    desc.contains('inner')
+  }
+
   def "Matrix job axes definition and job type"() {
     when:
     types {
@@ -55,13 +72,15 @@ class ComponentTest extends ModelSpecification {
   }
 
   @Fixed
-  static class ImplicitFieldComponent implements ImplicitFields {
+  static class ImplicitFieldComponent extends AnnotatedComponentType {
+    String name = 'faker'
+
     @ComponentField String exampleField = 'hello'
 
     @ComponentField String[] listExample = ['one', 'two', 'three']
   }
 
-  def "can create components using ComponentField trait"() {
+  def "can create components using ComponentField annotations"() {
     when:
     def component = ImplicitFieldComponent.instance
     def fieldMap = component.getFields()

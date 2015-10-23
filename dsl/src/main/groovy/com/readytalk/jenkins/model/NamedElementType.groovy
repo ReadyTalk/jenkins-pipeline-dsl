@@ -128,10 +128,9 @@ public @interface ComponentField {}
 
 //Allows declaring component parameters as class fields, not just a map
 //This enables annotating component parameters with actual types
-//@SelfType(AbstractComponentType) //TODO: Requires Groovy 2.4.x+
-trait ImplicitFields {
+abstract class AnnotatedComponentType extends AbstractComponentType {
   Map<String,?> getFields() {
-    Map<String,?> map = this.fields
+    Map<String,?> map = [:]
     map.putAll(this.getClass().getDeclaredFields().collectEntries { Field field ->
       if(ComponentField in field.declaredAnnotations*.annotationType()) {
         [(field.name): this.getProperty(field.name)]
