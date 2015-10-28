@@ -18,10 +18,6 @@ class CommonComponent extends AbstractComponentType {
             boolean shouldInherit(ItemSource item) {
               return item.lookupValue(name, 'inheritDescription')
             }
-
-            def combine(outer,inner) {
-              outer + (!(outer==''||inner=='') ? '\n' : '') + inner
-            }
           }
   ]
 
