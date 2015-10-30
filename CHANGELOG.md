@@ -1,6 +1,9 @@
 #Changelog
 ----------
 
+* 0.11.2-SNAPSHOT
+    - Update upstream job-dsl-core from 1.37 to 1.39
+
 * 0.11.1
     - Fix duplicated description and enable templated descriptions
 

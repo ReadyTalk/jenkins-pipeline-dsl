@@ -18,6 +18,10 @@ subprojects {
   repositories {
     jcenter()
     mavenCentral()
+    maven {
+      name 'Official Jenkins Repository'
+      url 'http://repo.jenkins-ci.org/public'
+    }
   }
 
   tasks.withType(JacocoReport) {
@@ -42,7 +46,7 @@ subprojects {
     compile (
       localGroovy(),
       //TODO: 1.38+ are missing from jcenter, contact upstream maintainers
-      'org.jenkins-ci.plugins:job-dsl-core:1.37',
+      'org.jenkins-ci.plugins:job-dsl-core:1.39',
     )
 
     testCompile (
