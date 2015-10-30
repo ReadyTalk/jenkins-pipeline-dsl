@@ -1,6 +1,9 @@
 #Changelog
 ----------
 
+* 0.11.1
+    - Fix duplicated description and enable templated descriptions
+
 * 0.11.0
     - Add extEmail component for ExtendedEmailPlugin
     - Add blockOn component for locks and build blocking config

@@ -31,7 +31,7 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath "com.readytalk.jenkins:plugin:0.10.0"
+    classpath "com.readytalk.jenkins:plugin:0.11.0"
   }
 }
 
@@ -103,12 +103,7 @@ model {
 }
 ```
 
-Open Source Progress:
----------------------
-  * No Jenkins plugin validation - if the DSL references plugins you don't have
-    installed on Jenkins, it won't work
-  * fitnesse component and jobs are very niche to the point of probably being
-    ReadyTalk-specific
-
-Other notes: Plugin validation exists in the upstream DSL when running through
-Jenkins directly - we might be able to pull that in
+Other notes:
+------------
+  * No Jenkins plugin validation - if the DSL references plugins you don't have installed on Jenkins, it won't work
+  * Doesn't delete jobs, only creates or updates them
