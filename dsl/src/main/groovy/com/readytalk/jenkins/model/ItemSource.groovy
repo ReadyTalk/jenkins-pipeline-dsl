@@ -37,19 +37,24 @@ class ItemSource {
   def generateWith(DslDelegate delegateGenerator) {
     def item = delegateGenerator.create(this)
 
-    prioritizedComponents().each { AbstractComponentType component ->
+    Map<Integer,List<Closure>> dslBlocks = [:].withDefault {[]}
+
+    components.each { AbstractComponentType component ->
       ContextLookup local = component.composeAdapter().injectContext(itemContext).getContext()
-      Closure config = (Closure)component.getDslConfig().clone()
-      config.setDelegate(item)
-      config.resolveStrategy = Closure.DELEGATE_FIRST
-      config.call(proxyOf(local).generate(component.getName()))
+      component.dslBlocks.each { Integer priority, Closure block ->
+        Closure config = (Closure)block.clone()
+        config.setDelegate(item)
+        config.resolveStrategy = Closure.DELEGATE_FIRST
+        ProxyDelegate proxy = proxyOf(local).generate(component.getName())
+        dslBlocks.get(priority).add(config.curry(proxy))
+      }
+    }
+
+    dslBlocks.keySet().asList().sort().each { Integer ord ->
+      dslBlocks.get(ord).each { it.call() }
     }
 
     return item
-  }
-
-  def prioritizedComponents() {
-    return components.asList().sort { a, b -> a.getPriority() <=> b.getPriority() }
   }
 
   String getItemName() {

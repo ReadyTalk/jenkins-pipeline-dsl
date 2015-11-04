@@ -44,6 +44,10 @@ abstract class AbstractComponentType implements NamedElementType {
   //Actual execution logic for this component
   Closure getDslConfig() { return {vars->} }
 
+  Map<Integer,Closure> getDslBlocks() {
+    return [(getPriority()): getDslConfig()]
+  }
+
   //Internal validation - components are leaf nodes, so can't contain further elements
   boolean canContain(NamedElementType type) { return false }
 
@@ -55,7 +59,7 @@ abstract class AbstractComponentType implements NamedElementType {
   ItemSource[] postProcess(ItemSource original) { return [original] }
 
   //Allows components to force ordering - lower value means higher precedence
-  int getPriority() { return 50 }
+  int getPriority() { 50 }
 
   //TODO: Rename this to adapter instead of traits, to avoid confusion with Groovy's native traits
   List<ComponentAdapter> traits = []

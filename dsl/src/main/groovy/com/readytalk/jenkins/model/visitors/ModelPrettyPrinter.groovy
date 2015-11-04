@@ -39,7 +39,7 @@ class ModelPrettyPrinter extends SymmetricVisitor {
   static void printItemList(itemList) {
     itemList.each { ItemSource source ->
       println AnsiRenderer.render("@|blue Item|@ @|cyan '${source.itemName}'|@:")
-      source.prioritizedComponents().each { component ->
+      source.components.each { component ->
         println AnsiRenderer.render("    @|white ${component.name}|@:")
         component.fields.each { k, v ->
           def value = source.lookupValue(component.name, k)

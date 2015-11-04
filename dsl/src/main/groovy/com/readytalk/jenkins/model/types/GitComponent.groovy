@@ -22,13 +22,12 @@ import java.util.regex.Matcher
 @Fixed
 class GitComponent extends AbstractComponentType {
   String name = 'git'
-  //Try not to report build status until all other publishers are done, except for trigger downstream
-  int priority = 90
 
   Map<String,?> fields = [
           repo:           new TemplateStr('${ownership.vcsProject}/${base.name}'),
           branches:       'master',
           clean:          true,
+          cleanExcludes:  '',
           clearWorkspace: false,
           refspec:        '',
           trigger:        true, //Can also set to string for scheduled polling
@@ -76,6 +75,25 @@ class GitComponent extends AbstractComponentType {
     return result
   }
 
+  Map<Integer,Closure> dslBlocks = [
+    (10): dslConfig,
+    (90): { vars ->
+      //Try not to report build status until all other publishers are done, except for trigger downstream
+      switch(vars.provider) {
+        case 'stash':
+          publishers {
+            stashNotifier()
+          }
+          break
+        case 'github':
+          publishers {
+            githubCommitNotifier()
+          }
+          break
+      }
+    },
+  ]
+
   Closure dslConfig = { vars->
     String repoRefspec
 
@@ -96,19 +114,6 @@ class GitComponent extends AbstractComponentType {
 
     def map = GitComponent.defaults(vars)
 
-    switch(vars.provider) {
-      case 'stash':
-        publishers {
-          stashNotifier()
-        }
-        break
-      case 'github':
-        publishers {
-          githubCommitNotifier()
-        }
-        break
-    }
-
     scm {
       git {
         remote {
@@ -124,12 +129,19 @@ class GitComponent extends AbstractComponentType {
           }
         }
         branches(*branchList)
-        if (vars.clean) clean()
+        if(vars.clean && !(vars.cleanExcludes)) clean()
         wipeOutWorkspace(vars.clearWorkspace)
 
         Closure dslBlock = vars.dsl.clone()
         dslBlock.setDelegate(getDelegate())
         dslBlock.call(vars)
+      }
+    }
+
+    if(vars.clean && vars.cleanExcludes) {
+      def excludes = StringUtils.asString(vars.cleanExcludes, "' -e '")
+      steps {
+        shell("git clean -fdx -e '${excludes}'")
       }
     }
 
