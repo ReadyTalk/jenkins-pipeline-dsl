@@ -1,8 +1,11 @@
 #Changelog
 ----------
 
-* 0.11.2-SNAPSHOT
+* 0.12.0
     - Update upstream job-dsl-core from 1.37 to 1.39
+    - Enable multiple dsl blocks per component
+    - Add git clean exclusion patterns for git component
+        Uses shell to run git clean instead of builtin plugin
 
 * 0.11.1
     - Fix duplicated description and enable templated descriptions

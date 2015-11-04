@@ -5,7 +5,7 @@ dependencies {
     'org.fusesource.jansi:jansi:1.11',
   )
 
-  testCompile('com.netflix.nebula:nebula-test:2.2.1')
+  testCompile('com.netflix.nebula:nebula-test:4.0.0')
 }
 
 publishing {

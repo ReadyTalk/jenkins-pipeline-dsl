@@ -5,6 +5,7 @@ import com.readytalk.jenkins.model.Fixed
 import com.readytalk.jenkins.model.ItemSource
 import com.readytalk.jenkins.model.TemplateStr
 import com.readytalk.jenkins.model.meta.AggregateField
+import com.readytalk.util.ClosureGlue
 import com.readytalk.util.StringUtils
 
 @Fixed
@@ -72,7 +73,11 @@ class TriggerDownstreamComponent extends AbstractComponentType {
           }
         } else {
           downstreamParameterized {
-            trigger(jobString, vars.triggerOn, true, [:], config)
+            trigger(jobString) {
+              parameters(config)
+              triggerWithNoParameters(true)
+              condition(vars.triggerOn)
+            }
           }
         }
       }
