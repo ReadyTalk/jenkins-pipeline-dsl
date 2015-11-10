@@ -1,6 +1,10 @@
 #Changelog
 ----------
 
+* 0.12.1
+    - Allow rake component to specify versions for preinstalled gems
+      Added to allow forcing bundler version
+
 * 0.12.0
     - Update upstream job-dsl-core from 1.37 to 1.39
     - Enable multiple dsl blocks per component

@@ -10,18 +10,24 @@ class RakeComponent extends AbstractComponentType {
 
   Map<String,?> fields = [
     rubyVersion: '', // use local version by default (.ruby-version)
+    gems: [:],
     tasks: ['ci']
   ]
 
   Closure dslConfig = { ProxyDelegate vars ->
+    String preinstallGems = vars.gems.collect { gem, version ->
+      version ? "${gem} -v ${version}" : gem
+    }.collect { arg ->
+      "gem install ${arg}"
+    }.join('\n')
+
     wrappers {
-      rbenv(vars.rubyVersion) {
-        gems('bundler', 'rake')
-      }
+      rbenv(vars.rubyVersion)
     }
 
     steps {
-      shell("""bundle install
+      shell("""${preinstallGems}
+bundle install
 rbenv rehash
 bundle exec rake ${vars.tasks.join(' ')}""")
     }
