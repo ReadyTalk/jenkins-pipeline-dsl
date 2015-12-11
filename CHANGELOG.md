@@ -1,6 +1,15 @@
 #Changelog
 ----------
 
+* 0.13.0 (pending)
+    - Support the CloudBees Folders plugin (e.g. as 'folderName/jobName')
+    - Improved documentation for components (tentative)
+    - Update to 
+
+* 0.12.2
+    - Update upstream job-dsl-core from 1.39 to 1.40
+    - Support setup and initialization shell steps
+
 * 0.12.1
     - Allow rake component to specify versions for preinstalled gems
       Added to allow forcing bundler version

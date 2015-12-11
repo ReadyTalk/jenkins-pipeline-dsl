@@ -25,11 +25,12 @@ class JenkinsTask extends AbstractTask {
     JenkinsXmlAction defaultAction = JenkinsActions.postJenkinsXml(client)
     xmlWriter = xmlWriter!=null ? xmlWriter : defaultAction
 
-    def results = ModelGenerator.executeXmlAction(plugin.generateItems(), xmlWriter)
-
-    if(xmlWriter == defaultAction) {
-      jobsChanged = results.get(ItemType.job).inject(false) { boolean collector, name, result ->
-        collector || (result == JenkinsActions.UpdateResult.changed)
+    plugin.generateItems().each { String path, items ->
+      def results = ModelGenerator.executeXmlAction(path, items, xmlWriter)
+      if(xmlWriter == defaultAction) {
+        jobsChanged |= results.get(ItemType.job).inject(false) { boolean collector, name, result ->
+          collector || (result == JenkinsActions.UpdateResult.changed)
+        }
       }
     }
   }

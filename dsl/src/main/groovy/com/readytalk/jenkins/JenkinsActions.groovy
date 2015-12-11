@@ -15,7 +15,7 @@ import org.fusesource.jansi.AnsiRenderer
  * @xml  groovy.util.Node DOM object
  */
 interface JenkinsXmlAction {
-  Map.Entry<String,?> xmlAction(ItemType type, String name, Node xml)
+  Map.Entry<String,?> xmlAction(String path, ItemType type, String name, Node xml)
 }
 
 enum ItemType {
@@ -28,22 +28,23 @@ class JenkinsActions {
     created, unchanged, changed, unknown
   }
 
-  static JenkinsXmlAction jenkinsXmlString = { type, name, xml ->
+  static JenkinsXmlAction jenkinsXmlString = { path, type, name, xml ->
     return new MapEntry(name, JenkinsClient.xmlSerialize(xml))
   } as JenkinsXmlAction
 
   static JenkinsXmlAction dumpJenkinsXml(File dir) {
-    return { ItemType type, String name, xml ->
-      (new File(dir, "${type}s")).mkdirs()
-      def dest = new File(dir, "${type.toString()}s/${name}.xml")
+    return { String path, ItemType type, String name, xml ->
+      (new File(dir, "${path}/${type}s")).mkdirs()
+      def dest = new File(dir, "${path}/${type.toString()}s/${name}.xml")
       new XmlNodePrinter(new PrintWriter(dest)).print(xml)
       return new MapEntry(name, dest)
     } as JenkinsXmlAction
   }
 
   //TODO: handle logging properly
-  static JenkinsXmlAction postJenkinsXml(JenkinsClient client) {
-    return { ItemType type, String name, Node xml ->
+  static JenkinsXmlAction postJenkinsXml(JenkinsClient baseClient) {
+    return { String path, ItemType type, String name, Node xml ->
+      def client = baseClient.withPath(path)
       Node existing = client.getItemXml(type, name)
       UpdateResult result = UpdateResult.unknown
 

@@ -19,17 +19,27 @@ class JenkinsConfigExtension implements ModelDslMethods {
       jenkins = getOwner().url
     }
   }
-  FileCollection scriptFiles
-  List<Closure> modelBlocks = []
   List<Closure> typeBlocks = []
   String url = 'JENKINS_URL'
   String username = 'jenkins'
   String password
+  Map<String, Configs> configs
 
   JenkinsConfigExtension(ReadytalkJenkinsPlugin plugin) {
     this.plugin = plugin
     this.project = plugin.project
-    this.scriptFiles = project.files()
+    this.configs = [:].withDefault { String path ->
+      def conf = new Configs(path)
+      conf.scriptFiles = project.files()
+      return conf
+    }
+  }
+
+  static class Configs {
+    final String path
+    FileCollection scriptFiles
+    List<Closure> modelBlocks = []
+    Configs(String path) { this.path = path }
   }
 
   private void failIfFrozen() {
@@ -41,11 +51,6 @@ class JenkinsConfigExtension implements ModelDslMethods {
   void types(Closure typeBlock) {
     failIfFrozen()
     typeBlocks.add(typeBlock)
-  }
-
-  void model(Closure modelBlock) {
-    failIfFrozen()
-    modelBlocks.add(modelBlock)
   }
 
   void defaults(Closure defaultsBlock) {
@@ -64,18 +69,33 @@ class JenkinsConfigExtension implements ModelDslMethods {
     }
   }
 
-  void dsl(Closure modelBlock) {
-    model(modelBlock)
+  void dsl(String path, Closure modelBlock) {
+    failIfFrozen()
+    configs[path].modelBlocks.add(modelBlock)
   }
 
-  void dsl(Iterable<File> files) {
-    failIfFrozen()
-    scriptFiles = scriptFiles + project.files(files)
+  void model(Closure modelBlock) {
+    dsl('', modelBlock)
   }
 
-  void dsl(File file) {
+  void dsl(String path, Iterable<File> files) {
     failIfFrozen()
-    scriptFiles = scriptFiles + project.files(file)
+    configs[path].scriptFiles += project.files(files)
+//    scriptFiles = scriptFiles + project.files(files)
+  }
+
+  void dsl(String path, File file) {
+    failIfFrozen()
+    configs[path] += project.files(file)
+//    scriptFiles = scriptFiles + project.files(file)
+  }
+
+  def methodMissing(String name, args) {
+    if(name == 'dsl' && args.size() == 1) {
+      dsl('', args.first())
+    } else {
+      throw new MissingMethodException(name, this.class, args)
+    }
   }
 
   void freeze() {

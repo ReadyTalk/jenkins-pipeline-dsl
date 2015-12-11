@@ -33,6 +33,7 @@ class ModelGenerator {
     ModelGenerator modelGen = new ModelGenerator()
     args.each { String filename ->
       executeXmlAction(
+              '',
               modelGen.generateItems(modelGen.generateFromScript(filename)),
               JenkinsActions.dumpJenkinsXml(new File('jenkins'))
       )
@@ -42,8 +43,12 @@ class ModelGenerator {
   //Perform action on all items' xml and return result of action if applicable as
   //Map<JenkinsItemType, Map<ITEM_NAME, RETURN_VALUE>>
   static def executeXmlAction(Map<ItemType,Map<String,Node>> items, JenkinsXmlAction action) {
+    executeXmlAction('', items, action)
+  }
+  static def executeXmlAction(String path, Map<ItemType,Map<String,Node>> items, JenkinsXmlAction action) {
+    def configuredAction = action.&xmlAction.curry(path)
     items.collectEntries { ItemType type, Map<String,Node> itemsOfType ->
-      [(type): itemsOfType.collectEntries(action.&xmlAction.curry(type))]
+      [(type): itemsOfType.collectEntries(configuredAction.curry(type))]
     }
   }
 

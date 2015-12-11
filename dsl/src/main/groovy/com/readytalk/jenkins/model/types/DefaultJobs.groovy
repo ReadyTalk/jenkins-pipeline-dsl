@@ -9,6 +9,9 @@ import com.readytalk.jenkins.model.TypeRegistryMap
 class DefaultJobs implements TypeRegistryBundle {
   static TypeRegistryMap generateTypes(TypeRegistryMap registry) {
     return TypeDsl.evaluate(registry) {
+      //Generic base item for things other than jobs, e.g. views and folders
+      job('item', ['base']) {}
+
       job('blankJob', ['base', 'common', 'parameterized']) {}
 
       job('basicJob', 'gradleProject', ['gradle', 'jvmMetrics', 'pullRequest'])

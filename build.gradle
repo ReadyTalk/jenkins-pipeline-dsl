@@ -14,6 +14,8 @@ subprojects {
   apply plugin: 'com.jfrog.artifactory'
   apply plugin: 'com.jfrog.bintray'
 
+  sourceCompatibility = 1.8
+
   repositories {
     jcenter()
     mavenCentral()
