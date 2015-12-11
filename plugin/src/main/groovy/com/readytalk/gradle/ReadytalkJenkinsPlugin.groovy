@@ -3,14 +3,12 @@ package com.readytalk.gradle
 import com.readytalk.jenkins.JenkinsActions
 import com.readytalk.jenkins.ItemType
 import com.readytalk.jenkins.ModelGenerator
-import com.readytalk.jenkins.model.ContextMap
 import com.readytalk.jenkins.model.GroupModelElement
-import com.readytalk.jenkins.model.ModelDsl
+import com.readytalk.jenkins.model.visitors.ModelPrettyPrinter
 import com.readytalk.util.ClosureGlue
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.logging.LogLevel
 
 /**
@@ -24,7 +22,7 @@ class ReadytalkJenkinsPlugin implements Plugin<Project> {
   JenkinsConfigExtension config
   ModelGenerator modelGen
 
-  private Map<ItemType,Map<String,Node>> items
+  private Map<String,Map<ItemType,Map<String,Node>>> items
 
   //TODO: Find a way to enforce restricting this to task execution phase only
   def generateItems() {
@@ -41,22 +39,28 @@ class ReadytalkJenkinsPlugin implements Plugin<Project> {
       modelGen.modelDsl.defaults(ClosureGlue.wrapWithErrorContext(config.getDefaults(),
           "gradle plugin defaults block from ${project.buildFile.absolutePath}"))
 
-      //Collect all parsed trees under a single root for convenience
-      GroupModelElement rootTree = modelGen.evaluate{}
-      Closure evaluator =
-              ClosureGlue.wrapWithErrorContext(modelGen.&evaluate.rcurry(rootTree),
-                      "dsl closure in gradle file ${project.buildFile.absolutePath}")
-      Closure fileEvaluator =
-              ClosureGlue.wrapWithErrorContext(evaluator << modelGen.&generateFromFile,
-                      "file specified by gradle plugin from ${project.buildFile.absolutePath}")
+      items = config.configs.collectEntries { String path, dslInputs ->
+        //Collect all parsed trees under a single root for convenience
+        GroupModelElement rootTree = modelGen.buildTree{}
 
-      config.modelBlocks.each(evaluator)
+        //Reset job parent instance for each path
+        modelGen.jobParent = modelGen.defaultJobParent()
 
-      config.scriptFiles.filter { File file ->
-        file.isFile() && (file.name.matches(/.*\.(groovy|yaml|yml)$/))
-      }.collect(fileEvaluator)
+        Closure evaluator =
+                ClosureGlue.wrapWithErrorContext(modelGen.&buildTree.rcurry(rootTree),
+                        "dsl closure in gradle file ${project.buildFile.absolutePath}")
+        Closure fileEvaluator =
+                ClosureGlue.wrapWithErrorContext(evaluator << modelGen.&fromFile,
+                        "file specified by gradle plugin from ${project.buildFile.absolutePath}")
 
-      items = modelGen.generateItems(rootTree)
+        dslInputs.modelBlocks.each(evaluator)
+
+        dslInputs.scriptFiles.filter { File file ->
+          file.isFile() && (file.name.matches(/.*\.(groovy|yaml|yml)$/))
+        }.collect(fileEvaluator)
+
+        return [(path): modelGen.buildXmlFromTree(rootTree)]
+      }
     }
     return items
   }
@@ -68,8 +72,7 @@ class ReadytalkJenkinsPlugin implements Plugin<Project> {
     project.extensions.add('jenkins', config)
 
     project.tasks.create('evaluateJenkinsDsl') { evalTask ->
-      evalTask.inputs.property('modelDsl', config.modelBlocks)
-      evalTask.inputs.files(config.scriptFiles)
+      evalTask.inputs.property('dslInputs', config.configs)
       project.tasks.withType(JenkinsTask) { task ->
         task.dependsOn evalTask
       }

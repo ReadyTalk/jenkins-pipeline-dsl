@@ -22,7 +22,7 @@ class JenkinsPluginTest extends PluginProjectSpec {
       }
 
       task('jenkinsTest', type: JenkinsTask) {
-        xmlWriter = { type, name, xml ->
+        xmlWriter = { path, type, name, xml ->
           works = true
           //passthrough
           new MapEntry(name,xml)
@@ -59,7 +59,7 @@ class JenkinsPluginTest extends PluginProjectSpec {
 
     ReadytalkJenkinsPlugin plugin = project.plugins.findPlugin(pluginName)
     plugin.generateItems()
-    Node xml = plugin.items.get(ItemType.job).find { it.key == 'hello-world' }.value
+    Node xml = plugin.items.get('').get(ItemType.job).find { it.key == 'hello-world' }.value
     println xml.assignedNode
 
     then:

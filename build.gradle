@@ -14,6 +14,8 @@ subprojects {
   apply plugin: 'com.jfrog.artifactory'
   apply plugin: 'com.jfrog.bintray'
 
+  sourceCompatibility = 1.8
+
   repositories {
     jcenter()
     mavenCentral()
@@ -94,5 +96,5 @@ afterEvaluate {
 }
 
 wrapper {
-  gradleVersion = '2.8'
+  gradleVersion = '2.9'
 }

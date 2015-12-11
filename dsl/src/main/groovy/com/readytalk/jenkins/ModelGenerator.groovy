@@ -17,15 +17,21 @@ import javaposse.jobdsl.dsl.View
 
 @CompileStatic
 class ModelGenerator {
-  JobParent jobParent
   ModelDsl modelDsl
-  TypeRegistryMap registry
 
   ModelGenerator(TypeRegistryMap registry = TypeRegistryMap.defaultTypes,
-                 JobParent jp = createJobParent()) {
-    this.registry = registry
-    this.jobParent = jp
-    this.modelDsl = new ModelDsl(jobParent, registry)
+                 JobParent jp = defaultJobParent()) {
+    this.modelDsl = new ModelDsl(jp, registry)
+  }
+
+  JobParent getJobParent() {
+    return modelDsl.jp
+  }
+  void setJobParent(JobParent jp) {
+    modelDsl.jp = jp
+  }
+  TypeRegistryMap getRegistry() {
+    return modelDsl.getRegistry()
   }
 
   static void main(String[] args) {
@@ -33,7 +39,8 @@ class ModelGenerator {
     ModelGenerator modelGen = new ModelGenerator()
     args.each { String filename ->
       executeXmlAction(
-              modelGen.generateItems(modelGen.generateFromScript(filename)),
+              '',
+              modelGen.buildXmlFromTree(modelGen.fromScript(filename)),
               JenkinsActions.dumpJenkinsXml(new File('jenkins'))
       )
     }
@@ -42,18 +49,22 @@ class ModelGenerator {
   //Perform action on all items' xml and return result of action if applicable as
   //Map<JenkinsItemType, Map<ITEM_NAME, RETURN_VALUE>>
   static def executeXmlAction(Map<ItemType,Map<String,Node>> items, JenkinsXmlAction action) {
+    executeXmlAction('', items, action)
+  }
+  static def executeXmlAction(String path, Map<ItemType,Map<String,Node>> items, JenkinsXmlAction action) {
+    def configuredAction = action.&xmlAction.curry(path)
     items.collectEntries { ItemType type, Map<String,Node> itemsOfType ->
-      [(type): itemsOfType.collectEntries(action.&xmlAction.curry(type))]
+      [(type): itemsOfType.collectEntries(configuredAction.curry(type))]
     }
   }
 
 
-  Closure generateFromScript(File scriptFile) {
-    return ClosureGlue.wrapWithErrorContext(generateFromScript(scriptFile.text),
+  Closure fromScript(File scriptFile) {
+    return ClosureGlue.wrapWithErrorContext(fromScript(scriptFile.text),
             "file: ${scriptFile.absolutePath}")
   }
 
-  Closure generateFromScript(String scriptText) {
+  Closure fromScript(String scriptText) {
     List<Closure> blocks = []
     def dslProxy = [types: modelDsl.&types, model: { Closure block ->
       blocks.add(block)
@@ -66,27 +77,27 @@ class ModelGenerator {
     }
   }
 
-  Closure generateFromYaml(File yamlFile) {
+  Closure fromYaml(File yamlFile) {
     assert yamlFile.isFile()
-    return ClosureGlue.wrapWithErrorContext(generateFromYaml(yamlFile.text),
+    return ClosureGlue.wrapWithErrorContext(fromYaml(yamlFile.text),
             "yaml file: ${yamlFile.absolutePath}")
   }
 
-  Closure generateFromFile(File file) {
+  Closure fromFile(File file) {
     if(file.name.endsWith('.groovy')) {
-      return generateFromScript(file)
+      return fromScript(file)
     } else if(file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
-      return generateFromYaml(file)
+      return fromYaml(file)
     } else {
       throw new UnsupportedOperationException("Don't know how to parse non-yaml, non-groovy dsl script: ${file.name}")
     }
   }
 
-  Closure generateFromYaml(String yamlText) {
+  Closure fromYaml(String yamlText) {
     return YamlParser.parse(yamlText)
   }
 
-  GroupModelElement evaluate(Closure parseable, GroupModelElement parent = null) {
+  GroupModelElement buildTree(Closure parseable, GroupModelElement parent = null) {
     GroupModelElement tree = modelDsl.parse(parseable)
     if(parent != null) {
       parent.elements.add(tree)
@@ -96,11 +107,11 @@ class ModelGenerator {
     }
   }
 
-  Map<ItemType,Map<String,Node>> generateItems(Closure parseable) {
-    return generateItems(evaluate(parseable))
+  Map<ItemType,Map<String,Node>> buildXmlFromTree(Closure parseable) {
+    return buildXmlFromTree(buildTree(parseable))
   }
 
-  Map<ItemType,Map<String,Node>> generateItems(GroupModelElement tree) {
+  Map<ItemType,Map<String,Node>> buildXmlFromTree(GroupModelElement tree) {
     modelDsl.generate(tree)
     Map<String,Node> items
     Map<String,Node> views
@@ -113,7 +124,7 @@ class ModelGenerator {
     return [(ItemType.job): items, (ItemType.view): views]
   }
 
-  private static JobParent createJobParent() {
+  static JobParent defaultJobParent() {
     FileJobManagement jm = new FileJobManagement(new File('.'))
     jm.parameters.putAll(System.getenv())
 

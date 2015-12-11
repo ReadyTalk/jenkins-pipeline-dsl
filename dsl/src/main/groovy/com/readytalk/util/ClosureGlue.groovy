@@ -120,7 +120,7 @@ __executor.call(*y)"""
 
   //Helper function for injecting additional context like filename into dsl errors
   //Can be wrapped multiple times for context from different layers
-  static Closure wrapWithErrorContext(Closure scriptClosure, String context) {
+  static Closure wrapWithErrorContext(Closure scriptClosure, context) {
     return { Object... args ->
       try {
         scriptClosure.delegate = getDelegate()

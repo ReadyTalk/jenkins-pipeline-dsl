@@ -1,16 +1,29 @@
 package com.readytalk.jenkins
 
 import groovy.transform.CompileStatic
+import groovyx.net.http.AuthConfig
 import groovyx.net.http.ContentType
+import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.RESTClient
 import groovyx.net.http.HttpResponseException
 
 class JenkinsClient {
+  final String prefix
   final @Delegate RESTClient client
 
   JenkinsClient(String url, String username, String password) {
     this.client = new RESTClient(url)
+    this.prefix = ''
     client.headers.put('Authorization', 'Basic ' + "${username}:${password}".toString().bytes.encodeBase64().toString())
+  }
+
+  private JenkinsClient(RESTClient client, String prefix) {
+    this.client = client
+    this.prefix = prefix
+  }
+
+  JenkinsClient withPath(String path) {
+    return new JenkinsClient(client, path)
   }
 
   //Can't use content type xml because it uses XmlSlurper under the hood, which is a huge mess
@@ -18,7 +31,7 @@ class JenkinsClient {
     def result
     try {
       result = client.get(
-              path:        "/${type.toString()}/${name}/config.xml",
+              path:        prefix + "/${type.toString()}/${name}/config.xml",
               contentType: ContentType.TEXT
       )
     } catch (HttpResponseException e) {
@@ -34,7 +47,7 @@ class JenkinsClient {
 
   void createItemXml(ItemType type, String itemName, Node item) {
     client.post(
-            path:        type.toString() == 'view' ? '/createView' : '/createItem',
+            path:        prefix + (type.toString() == 'view' ? '/createView' : '/createItem'),
             contentType: ContentType.XML,
             query:       [name: itemName],
             body:        xmlSerialize(item)
@@ -43,7 +56,7 @@ class JenkinsClient {
 
   void updateItemXml(ItemType type, String itemName, Node item) {
     client.post(
-            path:        "/${type.toString()}/${itemName}/config.xml",
+            path:        prefix + "/${type.toString()}/${itemName}/config.xml",
             contentType: ContentType.XML,
             body:        xmlSerialize(item),
     )

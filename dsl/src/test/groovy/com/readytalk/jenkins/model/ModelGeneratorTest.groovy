@@ -9,7 +9,7 @@ import spock.lang.Specification
 class ModelGeneratorTest extends Specification {
   @Rule TemporaryFolder tempDir
   ModelGenerator modelGen = new ModelGenerator()
-  Closure fromScript = modelGen.&generateItems << modelGen.&generateFromScript
+  Closure fromScript = modelGen.&buildXmlFromTree << modelGen.&fromScript
 
   def "can parse string as model dsl script"() {
     when:

@@ -9,12 +9,12 @@ import org.gradle.api.internal.AbstractTask
 import org.gradle.api.tasks.ParallelizableTask
 import org.gradle.api.tasks.TaskAction
 
-//generateItems() memoizes, and all JenkinsTask tasks depend on the initial generation task
+//buildXmlFromTree() memoizes, and all JenkinsTask tasks depend on the initial generation task
 @ParallelizableTask
 class JenkinsTask extends AbstractTask {
-  private ReadytalkJenkinsPlugin plugin
-  private Boolean jobsChanged = false
-  private JenkinsClient client = null
+  protected ReadytalkJenkinsPlugin plugin
+  protected Boolean jobsChanged = false
+  protected JenkinsClient client = null
   JenkinsXmlAction xmlWriter = null
 
   @TaskAction
@@ -25,11 +25,12 @@ class JenkinsTask extends AbstractTask {
     JenkinsXmlAction defaultAction = JenkinsActions.postJenkinsXml(client)
     xmlWriter = xmlWriter!=null ? xmlWriter : defaultAction
 
-    def results = ModelGenerator.executeXmlAction(plugin.generateItems(), xmlWriter)
-
-    if(xmlWriter == defaultAction) {
-      jobsChanged = results.get(ItemType.job).inject(false) { boolean collector, name, result ->
-        collector || (result == JenkinsActions.UpdateResult.changed)
+    plugin.generateItems().each { String path, items ->
+      def results = ModelGenerator.executeXmlAction(path, items, xmlWriter)
+      if(xmlWriter == defaultAction) {
+        jobsChanged |= results.get(ItemType.job).inject(false) { boolean collector, name, result ->
+          collector || (result == JenkinsActions.UpdateResult.changed)
+        }
       }
     }
   }
