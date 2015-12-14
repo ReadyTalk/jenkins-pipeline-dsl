@@ -1,10 +1,9 @@
 #Changelog
 ----------
 
-* 0.13.0 (pending)
-    - Support the CloudBees Folders plugin (e.g. as 'folderName/jobName')
-    - Improved documentation for components (tentative)
-    - Update to 
+* 0.13.0
+    - Experimental support for the CloudBees Folders plugin
+      Paths passed from outer API (which is only the Gradle plugin for now)
 
 * 0.12.2
     - Update upstream job-dsl-core from 1.39 to 1.40

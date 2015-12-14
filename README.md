@@ -62,6 +62,7 @@ Features:
     instance
   * Native support for component dsl model blocks
   * Supports YAML-based syntax in addition to groovy dsl
+  * Supports the CloudBees Folders plugin
 
 Requirements:
   * Gradle 2.1+
@@ -90,6 +91,7 @@ jenkins {
   }
 }
 ```
+
 It can also read dsl script files:
 
 ```
@@ -102,6 +104,14 @@ jenkins {
 //jenkins.groovy
 model {
   basicJob('myJob')
+}
+```
+
+CloudBees Folders plugin support:
+
+```groovy
+jenkins {
+  dsl('FolderPath', file('jenkins.yml'))
 }
 ```
 
