@@ -47,7 +47,7 @@ subprojects {
     compile (
       localGroovy(),
       //TODO: 1.38+ are missing from jcenter, contact upstream maintainers
-      'org.jenkins-ci.plugins:job-dsl-core:1.40',
+      'org.jenkins-ci.plugins:job-dsl-core:1.42',
     )
 
     testCompile (
@@ -96,5 +96,5 @@ afterEvaluate {
 }
 
 wrapper {
-  gradleVersion = '2.9'
+  gradleVersion = '2.10'
 }
