@@ -1,6 +1,13 @@
 #Changelog
 ----------
 
+* 0.14.0
+    - Update upstream job-dsl-core from 1.40 to 1.42
+    - Abandon using the pull-request refspecs for Stash/Bitbucket Server
+      They were very error-prone, and Atlassian considers them an internal API
+    - Allow pullRequest.overrides to actually override fields customized by
+      the pullRequest component instead of throwing a ContextAlreadyBound error
+
 * 0.13.0
     - Experimental support for the CloudBees Folders plugin
       Paths passed from outer API (which is only the Gradle plugin for now)

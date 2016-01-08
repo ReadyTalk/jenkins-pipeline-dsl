@@ -5,6 +5,7 @@ import com.readytalk.jenkins.model.ComponentField
 import com.readytalk.jenkins.model.Fixed
 import com.readytalk.jenkins.model.AnnotatedComponentType
 import com.readytalk.jenkins.model.ItemSource
+import com.readytalk.jenkins.model.ContextAlreadyBoundException
 import com.readytalk.util.ClosureGlue
 
 /**
@@ -16,7 +17,7 @@ import com.readytalk.util.ClosureGlue
 
 @Fixed
 class PullRequestComponent extends AbstractComponentType {
-  final static String stashRefspec = '+refs/pull-requests/*/from:refs/remotes/origin/pull-requests/*/from'
+  final static String stashRefspec = '+refs/heads/*:refs/remotes/origin/*'
   final static String githubRefspec = '+refs/pull/*:refs/remotes/origin/pr/*'
 
   String name = 'pullRequest'
@@ -105,12 +106,16 @@ class PullRequestComponent extends AbstractComponentType {
 
     prJob.defaults.context.putAll(prJob.user.context)
 
-    //Clumsy, but at least it allows overriding values in the pr job
-    def overrides = original.lookupValue(this.name, 'overrides')
-    overrides.each { String namespace, fields ->
-      fields.each { String key, value ->
-        prJob.user.bind(namespace, key, value)
+    //Enable pull-request build specific overrides
+    try {
+      def overrides = original.lookupValue(this.name, 'overrides')
+      overrides.each { String namespace, fields ->
+        fields.each { String key, value ->
+          prJob.user.bind(namespace, key, value)
+        }
       }
+    } catch(ContextAlreadyBoundException e) {
+      //Allow overrides, otherwise we'd be defeating the point
     }
 
     return [original, prJob]
