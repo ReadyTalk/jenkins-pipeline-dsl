@@ -64,7 +64,7 @@ class PullRequestComponent extends AbstractComponentType {
       if(prJob.components.contains(GitComponent.instance)) {
         switch (git.provider) {
           case 'stash':
-            git.branches = 'origin/pull-requests/*/from'
+            git.branches = ''
             git.refspec = stashRefspec + (mergeTo ? " +refs/heads/${mergeTo}:refs/remotes/origin/${mergeTo}" : '')
             break
           case 'github':
@@ -97,7 +97,7 @@ class PullRequestComponent extends AbstractComponentType {
           configure { Node node ->
             node / 'scm' / 'extensions' / 'hudson.plugins.git.extensions.impl.ChangelogToBranch' / 'options' << {
               compareRemote('origin')
-              compareTarget(mergeTarget)
+              compareTarget('${TO_BRANCH}')
             }
           }
         })
