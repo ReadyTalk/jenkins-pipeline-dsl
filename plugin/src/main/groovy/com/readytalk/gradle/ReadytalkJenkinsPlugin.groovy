@@ -36,8 +36,9 @@ class ReadytalkJenkinsPlugin implements Plugin<Project> {
       config.typeBlocks.each(modelGen.modelDsl.&types)
 
       //Set defaults
-      modelGen.modelDsl.defaults(ClosureGlue.wrapWithErrorContext(config.getDefaults(),
-          "gradle plugin defaults block from ${project.buildFile.absolutePath}"))
+      Closure defaultsEvaluator = ClosureGlue.wrapWithErrorContext(modelGen.modelDsl.&defaults,
+              "gradle plugin defaults block from ${project.buildFile.absolutePath}")
+      defaultsEvaluator(config.getDefaults())
 
       items = config.configs.collectEntries { String path, dslInputs ->
         //Collect all parsed trees under a single root for convenience
