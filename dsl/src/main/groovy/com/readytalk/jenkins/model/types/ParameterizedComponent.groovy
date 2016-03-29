@@ -13,12 +13,21 @@ class ParameterizedComponent extends AbstractComponentType {
 
   Map<String, ?> fields = [
           parameters: [:],
+          environment: [:],
+          envFile: '',
+          envScript: '',
           inherit: true
   ]
 
   List traits = [
           new AggregateField() {
             String aggregateField = 'parameters'
+            boolean shouldInherit(ItemSource item) {
+              return item.lookupValue(getName(), 'inherit')
+            }
+          },
+          new AggregateField() {
+            String aggregateField = 'environment'
             boolean shouldInherit(ItemSource item) {
               return item.lookupValue(getName(), 'inherit')
             }
@@ -44,6 +53,12 @@ class ParameterizedComponent extends AbstractComponentType {
               stringParam(k, StringUtils.asString(v))
           }
         }
+      }
+    }
+    if(vars.environment != [:] && !vars.envFile && !vars.envScript) {
+      environmentVariables(vars.environment) {
+        if(vars.envFile) propertiesFile(vars.envFile)
+        if(vars.envScript) propertiesFile(vars.envScript)
       }
     }
   }

@@ -1,8 +1,11 @@
 #Changelog
 ----------
 
-* 0.14.1
-    - Update upstream job-dsl-core from 1.42 to 1.43
+* 0.15.0
+    - Add environment variable mappings to parameterized component
+
+* *0.14.1*
+    - Update upstream job-dsl-core from 1.42 to 1.44
     - Parameterize target branch for pull request builds
 
 * 0.14.0
