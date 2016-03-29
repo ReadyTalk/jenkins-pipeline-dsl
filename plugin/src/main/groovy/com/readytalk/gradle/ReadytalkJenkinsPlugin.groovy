@@ -3,6 +3,7 @@ package com.readytalk.gradle
 import com.readytalk.jenkins.JenkinsActions
 import com.readytalk.jenkins.ItemType
 import com.readytalk.jenkins.ModelGenerator
+import com.readytalk.jenkins.model.AbstractComponentType
 import com.readytalk.jenkins.model.GroupModelElement
 import com.readytalk.jenkins.model.visitors.ModelPrettyPrinter
 import com.readytalk.util.ClosureGlue
@@ -27,7 +28,7 @@ class ReadytalkJenkinsPlugin implements Plugin<Project> {
   //TODO: Find a way to enforce restricting this to task execution phase only
   def generateItems() {
     if (items == null) {
-      //Fail loudly instead of silently if configuration added after xml already generated
+      //Fail loudly instead of silently if configuration changed after execution begins
       config.freeze()
       System.setProperty('printJenkinsDiffs', project.logger.isEnabled(LogLevel.INFO).toString())
 
@@ -79,6 +80,22 @@ class ReadytalkJenkinsPlugin implements Plugin<Project> {
       }
       evalTask.doLast {
         generateItems()
+      }
+    }
+
+    //TODO: Doesn't include types injected dynamically by groovy scripts
+    project.tasks.create('helpJenkinsDsl') { helpTask ->
+      def registry = modelGen.registry
+      helpTask.description =
+              "List components and raw default values (does not include local custom types or overrides)"
+      helpTask.doLast {
+        logger.quiet "Component fields (shown with default values):"
+        registry.components.each { AbstractComponentType component ->
+          logger.quiet "${component.name}:"
+          component.fields.each { String key, value ->
+            logger.quiet "    ${key}: ${value}"
+          }
+        }
       }
     }
 
