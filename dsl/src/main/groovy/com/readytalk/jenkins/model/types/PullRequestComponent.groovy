@@ -90,13 +90,8 @@ class PullRequestComponent extends AbstractComponentType {
       if(mergeTo) {
         String mergeTarget = mergeTo
         git.dsl = ClosureGlue.combinePreservingDelegate(git.dsl, {
-          extensions {
-            mergeOptions {
-              branch(mergeTarget)
-              remote('origin')
-            }
-            localBranch("pr-\${BUILD_NUMBER}-to-${mergeTarget}")
-          }
+          mergeOptions('origin', mergeTarget)
+          localBranch("pr-\${BUILD_NUMBER}-to-${mergeTarget}")
         })
         base.dsl = ClosureGlue.combinePreservingDelegate(base.dsl, {
           configure { Node node ->

@@ -1,7 +1,10 @@
 #Changelog
 ----------
 
-* 0.15.0
+* 0.15.1
+    - Revert back to 1.42, 1.44 has issues and generated incorrect xml
+
+* *0.15.0*
     - Add environment variable mappings to parameterized component
 
 * *0.14.1*
