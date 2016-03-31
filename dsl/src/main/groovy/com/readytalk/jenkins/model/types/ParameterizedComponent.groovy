@@ -16,7 +16,8 @@ class ParameterizedComponent extends AbstractComponentType {
           environment: [:],
           envFile: '',
           envScript: '',
-          inherit: true
+          inherit: true,
+          descriptions: [:],
   ]
 
   List traits = [
@@ -38,19 +39,20 @@ class ParameterizedComponent extends AbstractComponentType {
     if(vars.parameters != [:]) {
       parameters {
         vars.parameters.each { String k, v ->
+          def desc = vars.descriptions.containsKey(k) ? vars.descriptions.get(k) : ''
           switch (v) {
             case Boolean:
-              booleanParam(k, v)
+              booleanParam(k, v, desc)
               break
             case List:
               if(v.size() > 0) {
-                choiceParam(k, v)
+                choiceParam(k, v, desc)
               }
               break
             case Number:
             case String:
             default:
-              stringParam(k, StringUtils.asString(v))
+              stringParam(k, StringUtils.asString(v), desc)
           }
         }
       }

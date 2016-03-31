@@ -70,6 +70,28 @@ class ParameterizedComponentTest extends ModelSpecification {
     choices.string[1].value() == 'master'
   }
 
+  def "allows descriptions of parameters to be set"() {
+    when:
+    def jobs = generate {
+      fakeJob('faux') {
+        parameterized {
+          parameters = [
+                  BRANCH: 'someBranch'
+          ]
+          descriptions = [
+                  BRANCH: 'branch description'
+          ]
+        }
+      }
+    }
+    def xml = jobs.find { it.name == 'faux' }.getNode()
+    def definitions = xml.properties.'hudson.model.ParametersDefinitionProperty'.'parameterDefinitions'
+    def description = definitions.'hudson.model.StringParameterDefinition'.description
+
+    then:
+    description[0].value() == 'branch description'
+  }
+
   def "expands templated parameters properly"() {
     when:
     types {

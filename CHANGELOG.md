@@ -3,6 +3,7 @@
 
 * 0.15.1
     - Revert back to 1.42, 1.44 has issues and generated incorrect xml
+    - Enable descriptions to be set for job parameters
 
 * *0.15.0*
     - Add environment variable mappings to parameterized component
