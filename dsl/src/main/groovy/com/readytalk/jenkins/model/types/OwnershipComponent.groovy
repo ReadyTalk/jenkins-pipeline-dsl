@@ -14,24 +14,24 @@ class OwnershipComponent extends AbstractComponentType {
           team: '',
           email: '',
           vcsProject: new TemplateStr('${team}'),   //Defaults to team name
-          hipchatRooms: '',
-          hipchatLevel: 'FAILURE_AND_FIXED'
+          xmppRooms: '',
+          xmppLevel: 'FAILURE_AND_FIXED',
+          xmppServer: ''
   ]
 
   Closure dslConfig = { vars ->
-    def hipchatServer = 'conf.hipchat.com'
-    def rooms = StringUtils.asList(vars.hipchatRooms)
+    def rooms = StringUtils.asList(vars.xmppRooms)
     def roomString = rooms.collect { String room ->
-      room.contains('@') ? room : "*${room}@${hipchatServer}"
+      room.contains('@') ? room : "*${room}@${vars.xmppServer}"
     }.join(' ')
     publishers {
-      if(rooms.size() > 0) {
+      if (rooms.size() > 0 && vars.xmppServer != '') {
         publishJabber(roomString) {
-          strategyName(vars.hipchatLevel)
+          strategyName(vars.xmppLevel)
         }
       }
-      if(vars.email) {
-        mailer(StringUtils.asString(vars.email,','), true, true)
+      if (vars.email) {
+        mailer(StringUtils.asString(vars.email, ','), true, true)
       }
     }
   }
