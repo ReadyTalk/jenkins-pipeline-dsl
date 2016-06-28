@@ -2,9 +2,6 @@ package com.readytalk.jenkins.model.types
 
 import com.readytalk.jenkins.model.AbstractComponentType
 import com.readytalk.jenkins.model.Fixed
-import com.readytalk.jenkins.model.TemplateStr
-import com.readytalk.jenkins.model.meta.ComponentAdapter
-import com.readytalk.jenkins.model.meta.WarnIncompatible
 
 @Fixed
 class WorkflowSettings extends AbstractComponentType {
