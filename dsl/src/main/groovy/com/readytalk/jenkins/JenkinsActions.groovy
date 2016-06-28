@@ -64,9 +64,14 @@ class JenkinsActions {
         result = UpdateResult.created
       } else {
         //Preserve disabled status, as it's an ephemeral property of the job itself
-        boolean disabled = existing.disabled[0].value()[0].toBoolean()
-        String disabledIndicator = disabled ? AnsiRenderer.render("@|red (disabled)|@") : ''
-        xml.disabled[0].setValue(existing.disabled[0].value()[0])
+        //NOTE: This doesn't exist on multibranch pipelines!
+        def disabledNode = existing.disabled[0]
+        String disabledIndicator = ""
+        if(disabledNode != null) {
+          boolean disabled = existing.disabled[0].value()[0].toBoolean()
+          disabledIndicator = disabled ? AnsiRenderer.render("@|red (disabled)|@") : ''
+          xml.disabled[0].setValue(existing.disabled[0].value()[0])
+        }
 
         //Don't update unless there are real differences
         Diff diff = XMLUnit.compareXML(JenkinsClient.xmlSerialize(xml), JenkinsClient.xmlSerialize(existing))
