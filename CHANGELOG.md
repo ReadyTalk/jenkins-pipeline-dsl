@@ -1,6 +1,12 @@
 #Changelog
 ----------
 
+* 0.18.0
+    - Add experimental support for Pipeline DSL / Workflow jobs
+
+* 0.17.0
+    - Rename hipchatRooms to generic xmppRooms
+
 * 0.15.1
     - Revert back to 1.42, 1.44 has issues and generated incorrect xml
     - Enable descriptions to be set for job parameters
