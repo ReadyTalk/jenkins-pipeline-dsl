@@ -77,7 +77,7 @@ class PullRequestComponent extends AbstractComponentType {
 
       //Avoid clobbering the main build on merges
       ownership.priorityGroup = priorityGroup
-      common.quietPeriod = original.lookupValue('common', 'quietPeriod') + 5
+      common.quietPeriod = 5 + original.lookupValue('common', 'quietPeriod')
 
       //The PR job shouldn't recursively copy itself
       enabled = false

@@ -11,6 +11,7 @@ class PullRequestTest extends ModelSpecification {
       add PullRequestComponent.instance
       add TriggerDownstreamComponent.instance
       add ParameterizedComponent.instance
+      add CommonComponent.instance
     }
   }
 
