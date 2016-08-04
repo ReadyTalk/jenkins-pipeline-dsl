@@ -33,6 +33,7 @@ class CommonComponent extends AbstractComponentType {
           injectPasswords:  false, //if true, injects global passwords into the build
           concurrentBuild:  false,
           inheritDescription: true,
+          quietPeriod:      0, //Seconds to wait before actually starting the build
   ]
 
   Closure dslConfig = { vars->
@@ -42,6 +43,10 @@ class CommonComponent extends AbstractComponentType {
     logRotator(historyDays, vars.historyCount)
 
     description("${vars.description}\nThis job is auto-generated: all changes except disabling may be overwritten.")
+
+    if(vars.quietPeriod) {
+      quietPeriod(vars.quietPeriod)
+    }
 
     wrappers {
       colorizeOutput('xterm')

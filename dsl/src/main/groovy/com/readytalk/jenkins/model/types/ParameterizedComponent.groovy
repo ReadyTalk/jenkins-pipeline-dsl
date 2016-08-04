@@ -12,11 +12,11 @@ class ParameterizedComponent extends AbstractComponentType {
   String name = 'parameterized'
 
   Map<String, ?> fields = [
-          parameters: [:],
-          environment: [:],
-          envFile: '',
-          envScript: '',
-          inherit: true,
+          parameters:   [:],
+          environment:  [:],
+          envFile:      '',
+          envScript:    '',
+          inherit:      true,
           descriptions: [:],
   ]
 

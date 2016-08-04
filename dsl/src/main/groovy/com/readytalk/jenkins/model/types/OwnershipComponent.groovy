@@ -11,15 +11,25 @@ class OwnershipComponent extends AbstractComponentType {
   int priority = 95
 
   Map<String,?> fields = [
-          team: '',
-          email: '',
-          vcsProject: new TemplateStr('${team}'),   //Defaults to team name
-          xmppRooms: '',
-          xmppLevel: 'FAILURE_AND_FIXED',
-          xmppServer: ''
+          team:          '',
+          email:         '',
+          vsdcsProject:  new TemplateStr('${team}'),   //Defaults to team name
+          xmppRooms:     '',
+          xmppLevel:     'FAILURE_AND_FIXED',
+          xmppServer:    '',
+          priorityGroup: '', //TODO: What is the default priority if not set?
   ]
 
   Closure dslConfig = { vars ->
+    if(vars.priorityGroup) {
+      configure { node ->
+        node / 'properties' / 'jenkins.advancedqueue.jobinclusion.strategy.JobInclusionJobProperty' {
+          useJobGroup(true)
+          jobGroupName(vars.priorityGroup)
+        }
+      }
+    }
+
     def rooms = StringUtils.asList(vars.xmppRooms)
     def roomString = rooms.collect { String room ->
       room.contains('@') ? room : "*${room}@${vars.xmppServer}"

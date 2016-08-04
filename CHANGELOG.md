@@ -1,6 +1,11 @@
 #Changelog
 ----------
 
+* 0.19.0
+    - Add explicit support for priority groups and quiet periods
+      ownership.priorityGroup and common.quietPeriod respectively
+    - Set different priority group and force quiet period for pullrequest builds
+
 * 0.18.0
     - Add experimental support for Pipeline DSL / Workflow jobs
 

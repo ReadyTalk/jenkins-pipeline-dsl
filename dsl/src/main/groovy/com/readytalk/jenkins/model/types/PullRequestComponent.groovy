@@ -23,12 +23,13 @@ class PullRequestComponent extends AbstractComponentType {
   String name = 'pullRequest'
 
   Map<String,?> fields = [
-          enabled: true,
+          enabled:       true,
           notifications: false,
-          prefix: '',
-          suffix: '-pr-builder',
-          mergeTo: 'master',
-          overrides: [:] as Map<String,Map<String,?>>,
+          prefix:        '',
+          suffix:        '-pr-builder',
+          mergeTo:       'master',
+          overrides:     [:] as Map<String,Map<String,?>>,
+          priorityGroup: 'pr-builder',
   ]
 
   Closure dslConfig = { vars ->
@@ -73,6 +74,10 @@ class PullRequestComponent extends AbstractComponentType {
             break
         }
       }
+
+      //Avoid clobbering the main build on merges
+      ownership.priorityGroup = priorityGroup
+      common.quietPeriod = original.lookupValue('common', 'quietPeriod') + 5
 
       //The PR job shouldn't recursively copy itself
       enabled = false
