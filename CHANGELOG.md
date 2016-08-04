@@ -5,6 +5,7 @@
     - Add explicit support for priority groups and quiet periods
       ownership.priorityGroup and common.quietPeriod respectively
     - Set different priority group and force quiet period for pullrequest builds
+    - Improved support for Jenkins Pipeline DSL jobs
 
 * 0.18.0
     - Add experimental support for Pipeline DSL / Workflow jobs

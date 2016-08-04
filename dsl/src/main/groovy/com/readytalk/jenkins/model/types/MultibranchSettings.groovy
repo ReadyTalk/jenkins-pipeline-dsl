@@ -4,21 +4,24 @@ import com.readytalk.jenkins.model.AbstractComponentType
 import com.readytalk.jenkins.model.Fixed
 
 @Fixed
-class WorkflowSettings extends AbstractComponentType {
-  final String name = 'workflowSettings'
+class MultibranchSettings extends AbstractComponentType {
+  final String name = 'multibranchSettings'
 
   Map<String,?> fields = [
-          useJenkinsfile: true,
           primaryBranch:  'master', //If blank, build all branches
           remote:         null, //Repository URL (REQUIRED)
           historyDays:    '',  //days to keep build history
           historyCount:   45,  //builds to keep if days not set
+          dsl:         {},
   ]
 
   Closure dslConfig = { vars ->
     branchSources {
       git {
         remote(vars.remote)
+        Closure dslBlock = vars.dsl.clone()
+        dslBlock.setDelegate(getDelegate())
+        dslBlock.call(vars)
       }
     }
 
