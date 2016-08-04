@@ -13,7 +13,7 @@ class OwnershipComponent extends AbstractComponentType {
   Map<String,?> fields = [
           team:          '',
           email:         '',
-          vsdcsProject:  new TemplateStr('${team}'),   //Defaults to team name
+          vcsProject:    new TemplateStr('${team}'),   //Defaults to team name
           xmppRooms:     '',
           xmppLevel:     'FAILURE_AND_FIXED',
           xmppServer:    '',
