@@ -1,6 +1,6 @@
 plugins {
-  id 'com.jfrog.artifactory' version '3.1.2'
-  id 'com.readytalk.ci' version '1.0.0'
+  id 'com.jfrog.artifactory' version '4.4.0'
+  id 'com.readytalk.ci' version '1.1.0'
   id 'com.jfrog.bintray' version '1.4'
   id 'idea'
 }
@@ -47,7 +47,7 @@ subprojects {
     compile (
       localGroovy(),
       //TODO: 1.38+ are missing from jcenter, contact upstream maintainers
-      'org.jenkins-ci.plugins:job-dsl-core:1.42',
+      'org.jenkins-ci.plugins:job-dsl-core:1.51',
     )
 
     testCompile (
@@ -96,5 +96,5 @@ afterEvaluate {
 }
 
 wrapper {
-  gradleVersion = '2.10'
+  gradleVersion = '3.1'
 }

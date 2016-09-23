@@ -4,6 +4,7 @@ import com.readytalk.jenkins.model.AbstractComponentType
 import com.readytalk.jenkins.model.ComponentField
 import com.readytalk.jenkins.model.Fixed
 import com.readytalk.jenkins.model.AnnotatedComponentType
+import com.readytalk.util.ClosureGlue
 
 @Fixed
 class ExtendedEmailComponent extends AnnotatedComponentType {
@@ -31,7 +32,9 @@ class ExtendedEmailComponent extends AnnotatedComponentType {
 
     def customTrigger = { Map options ->
       Map combinedOptions = vars.triggerDefaults + options
-      trigger(combinedOptions)
+      String triggerName = combinedOptions.triggerName
+      triggerName = triggerName.charAt(0).toString().toLowerCase() + triggerName.substring(1)
+      delegate.invokeMethod(triggerName, {})
       delayedConfigurations << { node ->
         def triggerContext = node / 'publishers' / 'hudson.plugins.emailext.ExtendedEmailPublisher' / 'configuredTriggers' / "hudson.plugins.emailext.plugins.trigger.${combinedOptions.triggerName}Trigger" / 'email'
         combinedOptions.each { arg, val ->
@@ -43,18 +46,21 @@ class ExtendedEmailComponent extends AnnotatedComponentType {
     }
 
     publishers {
-      extendedEmail(vars.recipients) {
-        customTrigger.setDelegate(getDelegate())
-        vars.triggers.each { Map params ->
-          if(params.triggerName instanceof List) {
-            params.triggerName.each { String id ->
-              customTrigger(params + [triggerName: id])
+      extendedEmail({
+        recipientList(vars.recipients)
+        triggers({
+          customTrigger.setDelegate(getDelegate())
+          vars.triggers.each { Map params ->
+            if(params.triggerName instanceof List) {
+              params.triggerName.each { String id ->
+                customTrigger(params + [triggerName: id])
+              }
+            } else {
+              customTrigger(params)
             }
-          } else {
-            customTrigger(params)
           }
-        }
-      }
+        })
+      })
     }
 
     configure { node ->
