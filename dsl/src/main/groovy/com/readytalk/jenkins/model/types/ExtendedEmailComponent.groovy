@@ -32,7 +32,9 @@ class ExtendedEmailComponent extends AnnotatedComponentType {
 
     def customTrigger = { Map options ->
       Map combinedOptions = vars.triggerDefaults + options
-      trigger(combinedOptions)
+      String triggerName = combinedOptions.triggerName
+      triggerName = triggerName.charAt(0).toString().toLowerCase() + triggerName.substring(1)
+      delegate.invokeMethod(triggerName, {})
       delayedConfigurations << { node ->
         def triggerContext = node / 'publishers' / 'hudson.plugins.emailext.ExtendedEmailPublisher' / 'configuredTriggers' / "hudson.plugins.emailext.plugins.trigger.${combinedOptions.triggerName}Trigger" / 'email'
         combinedOptions.each { arg, val ->
