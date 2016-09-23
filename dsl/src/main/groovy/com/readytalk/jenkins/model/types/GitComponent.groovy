@@ -129,8 +129,10 @@ class GitComponent extends AbstractComponentType {
           }
         }
         branches(*branchList)
-        if(vars.clean && !(vars.cleanExcludes)) clean()
-        wipeOutWorkspace(vars.clearWorkspace)
+        extensions {
+          if(vars.clean && !(vars.cleanExcludes)) cleanBeforeCheckout()
+          if(vars.wipeOutWorkspace) wipeOutWorkspace()
+        }
 
         Closure dslBlock = vars.dsl.clone()
         dslBlock.setDelegate(getDelegate())

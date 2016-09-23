@@ -2,6 +2,7 @@ package com.readytalk.jenkins.model.types
 
 import com.readytalk.jenkins.model.ModelSpecification
 import com.readytalk.jenkins.model.YamlParser
+import spock.lang.Ignore
 
 class WorkflowTest extends ModelSpecification {
   def setup() {
@@ -51,6 +52,7 @@ class WorkflowTest extends ModelSpecification {
     job.sources.data.'jenkins.branch.BranchSource'[0].source.credentialsId[0].value() == 'fake-creds-id'
   }
 
+  @Ignore
   def "Can set inline pipeline script"() {
     when:
     String script = "echo 'Hello world!'"

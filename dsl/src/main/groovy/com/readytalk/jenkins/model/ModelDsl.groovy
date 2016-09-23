@@ -24,7 +24,8 @@ class ModelDsl implements ModelDslMethods {
     this.defaultLookup = new DefaultContext(registry)
   }
 
-  protected static def itemCreator(JobParent jp, ItemSource source) {
+  //jp should normally be JobParent, but in theory it could be the direct netflix delegate...
+  protected static def itemCreator(jp, ItemSource source) {
     String type = source.context.lookup('base','type').get()
     return jp.invokeMethod(type, [source.itemName, {}])
   }

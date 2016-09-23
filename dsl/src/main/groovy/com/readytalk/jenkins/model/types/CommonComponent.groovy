@@ -64,7 +64,7 @@ class CommonComponent extends AbstractComponentType {
     if(vars.useXvnc) {
       wrappers {
         xvnc {
-          useXauthority()
+          useXauthority(true)
         }
       }
     }
