@@ -1,6 +1,12 @@
 #Changelog
 ----------
 
+* 0.20.1
+    - Add timestamps option by default to common component
+
+* 0.20.0
+    - Update to jenkins-job-dsl 1.51 and fix deprecated syntax
+
 * 0.19.0
     - Add explicit support for priority groups and quiet periods
       ownership.priorityGroup and common.quietPeriod respectively

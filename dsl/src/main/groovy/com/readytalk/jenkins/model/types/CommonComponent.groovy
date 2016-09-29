@@ -34,6 +34,7 @@ class CommonComponent extends AbstractComponentType {
           concurrentBuild:  false,
           inheritDescription: true,
           quietPeriod:      0, //Seconds to wait before actually starting the build
+          timestamps:       true,
   ]
 
   Closure dslConfig = { vars->
@@ -73,6 +74,12 @@ class CommonComponent extends AbstractComponentType {
       wrappers {
         maskPasswords()
         injectPasswords()
+      }
+    }
+
+    if(vars.timestamps) {
+      wrappers {
+        timestamps()
       }
     }
   }
