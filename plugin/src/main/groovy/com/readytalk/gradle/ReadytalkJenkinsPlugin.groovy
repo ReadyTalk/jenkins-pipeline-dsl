@@ -43,7 +43,11 @@ class ReadytalkJenkinsPlugin implements Plugin<Project> {
 
       items = config.configs.collectEntries { String path, dslInputs ->
         //Collect all parsed trees under a single root for convenience
-        GroupModelElement rootTree = modelGen.buildTree{}
+        GroupModelElement rootTree = modelGen.buildTree {
+          base {
+            folder = path
+          }
+        }
 
         //Reset job parent instance for each path
         modelGen.jobParent = modelGen.defaultJobParent()

@@ -9,6 +9,7 @@ class BaseComponent extends AbstractComponentType {
 
   Map<String,?> fields = [
           name: null,         //Item name to be passed into DslDelegate
+          folder: '',         //folder path (INJECTED - DO NOT MODIFY!)
           type: 'job',        //Upstream type
           jenkins: 'JENKINS', //Jenkins URL - optional
           dsl:  { vars-> },   //Special: upstream dsl escape hatch allowing direct access to upstream dsl

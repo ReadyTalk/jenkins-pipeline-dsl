@@ -1,6 +1,9 @@
 #Changelog
 ----------
 
+* 0.21.0
+    - Experimental folder support for pipeline/sequential blocks
+
 * 0.20.1
     - Add timestamps option by default to common component
 

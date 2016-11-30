@@ -64,7 +64,14 @@ abstract class AbstractPipeline {
     def trigger = injectComponent(upstream, TriggerDownstreamComponent.instance)
     def downstreamJobs = StringUtils.asList(trigger.jobs,',').toSet()
     downstreamJobs.add(downstream.itemName)
-    trigger.jobs = downstreamJobs.toList()
+    trigger.jobs = downstreamJobs.toList().collect { String downstreamJobName ->
+      String folder = downstream.lookupValue('base','folder')
+      if(folder != '') {
+        return folder + '/' + downstreamJobName
+      } else {
+        return downstreamJobName
+      }
+    }
     trigger.sameParameters = true
   }
 
